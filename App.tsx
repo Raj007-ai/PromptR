@@ -1143,7 +1143,7 @@ const App: React.FC = () => {
                               alt="Generated AI Blueprint" 
                             />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center space-x-4 backdrop-blur-sm">
-                              <button onClick={() => downloadImage(generatedImage.url, imagePrompt)} className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
+                              <button aria-label="Download Image" title="Download Image" onClick={() => downloadImage(generatedImage.url, imagePrompt)} className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
                             </div>
                           </div>
                         )}
@@ -1332,6 +1332,7 @@ const App: React.FC = () => {
                           }}
                           className="p-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl hover:bg-blue-500/20 transition-all backdrop-blur-md opacity-40 group-hover:opacity-100"
                           title="Share Record"
+                          aria-label="Share Record"
                         >
                           <Icons.Share className="w-5 h-5" />
                         </button>
@@ -1339,6 +1340,7 @@ const App: React.FC = () => {
                           onClick={(e) => { e.stopPropagation(); deleteHistoryItem(item.id); }}
                           className="p-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl hover:bg-red-500/20 transition-all backdrop-blur-md opacity-40 group-hover:opacity-100"
                           title="Delete Record"
+                          aria-label="Delete Record"
                         >
                           <Icons.Trash />
                         </button>
@@ -1419,10 +1421,11 @@ const App: React.FC = () => {
                           }}
                           className="text-blue-400 opacity-40 hover:opacity-100 transition-opacity"
                           title="Share Record"
+                          aria-label="Share Record"
                         >
                           <Icons.Share className="w-5 h-5" />
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); setSavedItems(savedItems.filter(i => i.id !== item.id)); showNotification("Record expunged."); }} className="text-red-400 opacity-40 hover:opacity-100 transition-opacity"><Icons.Trash /></button>
+                        <button aria-label="Delete Record" onClick={(e) => { e.stopPropagation(); setSavedItems(savedItems.filter(i => i.id !== item.id)); showNotification("Record expunged."); }} className="text-red-400 opacity-40 hover:opacity-100 transition-opacity"><Icons.Trash /></button>
                         <div className={`w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center ${isSelected ? 'bg-emerald-500 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'border-white/10 group-hover:border-emerald-500/30'}`}>
                           {isSelected && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-2 h-2 rounded-full bg-white" />}
                         </div>

@@ -67,7 +67,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, promptT
           >
             <div className="flex items-center justify-between p-6 border-b border-white/5">
               <h3 className="text-sm font-black text-[var(--text-main)] uppercase tracking-widest">Share Prompt</h3>
-              <button onClick={onClose} className="p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors rounded-full hover:bg-white/5">
+              <button aria-label="Close" onClick={onClose} className="p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors rounded-full hover:bg-white/5">
                 <Icons.X className="w-4 h-4" />
               </button>
             </div>
@@ -95,6 +95,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, promptT
                     onClick={handleCopyLink}
                     className={`p-3 rounded-xl flex items-center justify-center transition-all ${copied ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/5 text-[var(--text-main)] border border-white/10 hover:bg-white/10'}`}
                     title="Copy Link"
+                    aria-label="Copy Link"
                   >
                     {copied ? <Icons.Save className="w-4 h-4" /> : <Icons.Copy className="w-4 h-4" />}
                   </button>
