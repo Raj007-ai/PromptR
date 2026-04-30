@@ -8,6 +8,7 @@ import hljs from 'highlight.js';
 import { Particles } from './components/Particles.tsx';
 import { ShareModal } from './components/ShareModal.tsx';
 import Editor from 'react-simple-code-editor';
+import DOMPurify from 'dompurify';
 
 const highlightPrompt = (code: string) => {
   const escapeHtml = (unsafe: string) => {
@@ -266,7 +267,7 @@ const CodeHighlighter: React.FC<{ content: string }> = ({ content }) => {
 
   return (
     <pre className="text-sm font-mono leading-relaxed overflow-x-auto custom-scrollbar p-6 bg-white/[0.02] rounded-3xl border border-white/5 shadow-inner backdrop-blur-md">
-      <code className="hljs" dangerouslySetInnerHTML={{ __html: highlighted || content }} />
+      <code className="hljs" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(highlighted || content) }} />
     </pre>
   );
 };
