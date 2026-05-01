@@ -2,32 +2,28 @@
 export enum AppView {
   PROMPT_GENERATOR = 'PROMPT_GENERATOR',
   IMAGE_STUDIO = 'IMAGE_STUDIO',
-  SAVED = 'SAVED',
-  HISTORY = 'HISTORY',
-  BATCH_RESULTS = 'BATCH_RESULTS',
   STYLE_ANALYZER = 'STYLE_ANALYZER'
 }
 
 export enum GenerationLanguage {
   ENGLISH = 'English',
   HINDI = 'Hindi',
-  HINGLISH = 'Hinglish',
-  SPANISH = 'Spanish',
-  FRENCH = 'French',
-  JAPANESE = 'Japanese'
+  HINGLISH = 'Hinglish'
 }
 
-export type AspectRatio = '1:1' | '3:4' | '4:3' | '9:16' | '16:9' | '21:9';
+export type AspectRatio = '1:1' | '3:4' | '4:3' | '9:16' | '16:9';
 
 export interface ImageGenerationInput {
   prompt: string;
   aspectRatio: AspectRatio;
   style?: string;
   negativePrompt?: string;
+  numberOfImages?: number;
 }
 
 export interface GeneratedImageResult {
   url: string;
+  urls?: string[];
   revisedPrompt: string;
 }
 
@@ -38,6 +34,7 @@ export interface PromptInput {
   useSearch: boolean;
   useThinking: boolean;
   image?: string;
+  targetMedium?: string;
 }
 
 export interface StyleBreakdown {
@@ -62,20 +59,9 @@ export interface GeneratedPrompt {
   };
 }
 
-export interface BatchVariationResult {
-  variations: string[];
-  themeSynthesis: string;
-}
 
-export type SavedItemType = 'prompt' | 'image';
 
-export interface SavedItem {
-  id: string;
-  type: SavedItemType;
-  timestamp: number;
-  data: GeneratedPrompt | string | GeneratedImageResult;
-  title?: string;
-}
+
 
 export interface StyleAnalysisResult {
   summary: string;

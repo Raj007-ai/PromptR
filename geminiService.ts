@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, ThinkingLevel, Modality } from "@google/genai";
-import { GenerationLanguage, PromptInput, GeneratedPrompt, BatchVariationResult, ImageGenerationInput, GeneratedImageResult, AspectRatio, StyleAnalysisResult } from "./types.ts";
+import { GenerationLanguage, PromptInput, GeneratedPrompt, ImageGenerationInput, GeneratedImageResult, AspectRatio, StyleAnalysisResult } from "./types.ts";
 
 export class StudioError extends Error {
   constructor(public message: string, public type: 'safety' | 'network' | 'parsing' | 'generic' = 'generic') {
@@ -10,11 +10,12 @@ export class StudioError extends Error {
 }
 
 export const generateAIImage = async (input: ImageGenerationInput): Promise<GeneratedImageResult> => {
-  if (!process.env.GEMINI_API_KEY) {
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
     throw new StudioError("API Key is missing.", 'network');
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const ai = new GoogleGenAI({ apiKey });
   const fullPrompt = input.style 
     ? `Style: ${input.style}. Subject: ${input.prompt}. Constraints: ${input.negativePrompt || 'None'}` 
     : input.prompt;
@@ -26,6 +27,7 @@ export const generateAIImage = async (input: ImageGenerationInput): Promise<Gene
         parts: [{ text: fullPrompt }]
       },
       config: {
+        candidateCount: input.numberOfImages || 1,
         imageConfig: {
           aspectRatio: input.aspectRatio
         }
@@ -33,17 +35,21 @@ export const generateAIImage = async (input: ImageGenerationInput): Promise<Gene
     });
 
     let imageUrl = '';
+    let urls: string[] = [];
     let textOutput = '';
 
     const candidates = response.candidates || [];
-    const firstCandidate = candidates[0];
-    const parts = firstCandidate?.content?.parts || [];
-
-    for (const part of parts) {
-      if (part.inlineData) {
-        imageUrl = `data:image/png;base64,${part.inlineData.data}`;
-      } else if (part.text) {
-        textOutput += part.text;
+    
+    for (const candidate of candidates) {
+      const parts = candidate.content?.parts || [];
+      for (const part of parts) {
+        if (part.inlineData) {
+          const url = `data:image/png;base64,${part.inlineData.data}`;
+          if (!imageUrl) imageUrl = url;
+          urls.push(url);
+        } else if (part.text && !textOutput) {
+          textOutput += part.text;
+        }
       }
     }
 
@@ -53,6 +59,7 @@ export const generateAIImage = async (input: ImageGenerationInput): Promise<Gene
 
     return {
       url: imageUrl,
+      urls: urls.length > 1 ? urls : undefined,
       revisedPrompt: textOutput || fullPrompt
     };
   } catch (error: any) {
@@ -62,11 +69,12 @@ export const generateAIImage = async (input: ImageGenerationInput): Promise<Gene
 };
 
 export const editImageWithAI = async (imageB64: string, instruction: string, aspectRatio: AspectRatio): Promise<GeneratedImageResult> => {
-  if (!process.env.GEMINI_API_KEY) {
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
     throw new StudioError("API Key is missing.", 'network');
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const ai = new GoogleGenAI({ apiKey });
   
   try {
     const response = await ai.models.generateContent({
@@ -119,44 +127,48 @@ export const editImageWithAI = async (imageB64: string, instruction: string, asp
 };
 
 export const generateAIPrompt = async (input: PromptInput, isVariation: boolean = false): Promise<GeneratedPrompt> => {
-  if (!process.env.GEMINI_API_KEY) {
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
     throw new StudioError("API Key is missing. Please check your environment.", 'network');
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const ai = new GoogleGenAI({ apiKey });
   const modelName = input.useThinking ? 'gemini-3-pro-preview' : 'gemini-3-flash-preview';
   
   const systemInstruction = `You are PromptR Architect, the world's premier AI prompt engineering authority. 
 Your mission is to transform raw keywords and technical tags into a sophisticated, high-performance prompt.
 
 STUDIO LOGIC:
-1. Subject & Narrative: Derive from keywords.
-2. Technical DNA: Derive from tags (${input.tags.join(', ')}). 
-3. Visual Context: If an image is provided, analyze its lighting, composition, and mood to anchor the generated prompt.
-${isVariation ? '4. VARIATION MODE: The user wants a slight variation of the previous intent. Change the phrasing, perspective, or focus slightly while keeping the core subject identical.' : ''}
+1. Target Medium: The user wants a prompt specifically for ${input.targetMedium || 'Image Generation'}. Tailor the prompt's structure, vocabulary, and technical parameters to suit this medium (e.g., if Music, use musical terms; if Video, use camera movements and pacing; if Code, specify language and architecture; if Image, use visual descriptors).
+2. Subject & Narrative: Derive from keywords.
+3. Technical DNA: Derive from tags (${input.tags.join(', ')}). 
+4. Visual Context: If an image is provided, analyze its elements to anchor the generated prompt.
+${isVariation ? '5. VARIATION MODE: The user wants a slight variation of the previous intent. Change the phrasing, perspective, or focus slightly while keeping the core subject identical.' : ''}
 
 RESPONSE FORMAT (JSON):
-- "refinedPrompt": The master-level prompt optimized for high-end models.
-- "negativePrompt": Crucial constraints and artifacts to avoid.
+- "refinedPrompt": The master-level prompt optimized for high-end models for the target medium.
+- "negativePrompt": Crucial constraints and artifacts to avoid (if applicable to the medium).
 - "logic": Architectural reasoning.
 - "styleAnalysis": Object with movements, techniques, and influences.
-- "suggestedSettings": Recommended aspect ratios, sampling methods, etc.
+- "suggestedSettings": Recommended settings, tools, or parameters for the target medium.
 
 CULTURAL NUANCE:
 The output must be optimized for the ${input.language} language.`;
 
   const parts: any[] = [
     { text: `CONTEXTUAL INPUT:
+      Target Medium: ${input.targetMedium || 'Image Generation'}
       Primary Keywords: ${input.keywords}
       Technical Tags: ${input.tags.join(', ')}
       Target Output Language: ${input.language}` }
   ];
 
   if (input.image) {
+    const mimeType = input.image.match(/data:(.*?);base64/)?.[1] || 'image/jpeg';
     const imageData = input.image.includes(',') ? input.image.split(',')[1] : input.image;
     parts.push({
       inlineData: {
-        mimeType: 'image/jpeg',
+        mimeType: mimeType,
         data: imageData
       }
     });
@@ -230,63 +242,16 @@ The output must be optimized for the ${input.language} language.`;
   }
 };
 
-export const generatePromptBatch = async (prompts: string[]): Promise<BatchVariationResult> => {
-  if (!process.env.GEMINI_API_KEY) {
-    throw new StudioError("API Key is missing.", 'network');
-  }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-  
-  const systemInstruction = `You are PromptR Architect. 
-You will be given a collection of high-end AI prompts. 
-Your task is to:
-1. Synthesize the core collective themes, styles, and artistic directions.
-2. Generate 4 new, unique prompts that are subtle variations or expansions of these themes.
-3. Ensure the new prompts maintain the original intent but offer fresh creative perspectives (e.g., changing lighting, medium, or narrative angle).
-
-RESPONSE FORMAT (JSON):
-- "variations": Array of 4 strings (the new prompts).
-- "themeSynthesis": A brief architectural summary of the shared DNA found in the inputs.`;
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
-      contents: `INPUT PROMPTS FOR SYNTHESIS:
-      ${prompts.map((p, i) => `Prompt ${i+1}: ${p}`).join('\n')}`,
-      config: {
-        systemInstruction,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            variations: { type: Type.ARRAY, items: { type: Type.STRING } },
-            themeSynthesis: { type: Type.STRING }
-          },
-          required: ["variations", "themeSynthesis"]
-        }
-      }
-    });
-
-    if (!response.text) throw new StudioError("Failed to synthesize batch variations.");
-    
-    try {
-      const cleanJson = response.text.replace(/^```json\n?|```$/g, '').trim();
-      return JSON.parse(cleanJson);
-    } catch (e) {
-      console.error("Batch Synthesis Parse Error", e, response.text);
-      throw new StudioError("Failed to parse batch synthesis results.", 'parsing');
-    }
-  } catch (error: any) {
-    throw new StudioError(error.message || "Batch synthesis failed.", 'generic');
-  }
-};
 
 export const enhanceKeywords = async (keywords: string, isVisual: boolean = false): Promise<string> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    
     const instruction = isVisual 
-      ? `Transform these simple visual concepts into a highly detailed, professional-grade image prompt for Midjourney/DALL-E. Use descriptive language for lighting, texture, and artistic style. Keywords: "${keywords}". Output ONLY the refined prompt text.`
-      : `Transform these simple concepts into architectural prompt phrases. Keep it high-end and descriptive. Input: "${keywords}". Output: (Max 20 words, comma-separated)`;
+      ? `Transform the following user input into a highly detailed, professional-grade image prompt for Midjourney/DALL-E. Use descriptive language for lighting, texture, and artistic style. If the user included specific instructions on how to refine it (e.g., "make it cyberpunk", "add cinematic lighting"), follow them. User Input: "${keywords}". Output ONLY the refined prompt text.`
+      : `Transform the following user input into architectural prompt phrases. Keep it high-end and descriptive. If the user included specific instructions on how to refine it, follow them. User Input: "${keywords}". Output: (Max 20 words, comma-separated)`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -298,25 +263,68 @@ export const enhanceKeywords = async (keywords: string, isVisual: boolean = fals
   }
 };
 
+export const suggestEnhancements = async (keywords: string): Promise<{ enhancedKeywords: string, suggestedTags: string[] }> => {
+  try {
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    
+    const systemInstruction = `You are an AI prompt engineering assistant. 
+Given a short user concept, provide an enhanced, highly descriptive version of the concept (max 20 words) and suggest 5-8 technical tags (e.g., lighting, camera, style, medium, resolution) that perfectly match the concept.
+
+RESPONSE FORMAT (JSON):
+{
+  "enhancedKeywords": "string",
+  "suggestedTags": ["tag1", "tag2"]
+}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `User Concept: "${keywords}"`,
+      config: {
+        systemInstruction,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            enhancedKeywords: { type: Type.STRING },
+            suggestedTags: { type: Type.ARRAY, items: { type: Type.STRING } }
+          },
+          required: ["enhancedKeywords", "suggestedTags"]
+        }
+      }
+    });
+
+    const cleanJson = response.text?.replace(/^```json\n?|```$/g, '').trim();
+    if (!cleanJson) throw new Error("Empty response");
+    return JSON.parse(cleanJson);
+  } catch (error) {
+    throw new StudioError("Failed to generate suggestions. Proceeding with original keywords.", 'generic');
+  }
+};
+
 export const analyzeArtisticStyle = async (input: { image?: string, description?: string }): Promise<StyleAnalysisResult> => {
-  if (!process.env.GEMINI_API_KEY) {
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
     throw new StudioError("API Key is missing.", 'network');
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const ai = new GoogleGenAI({ apiKey });
   const parts: any[] = [];
 
   if (input.image) {
+    const mimeType = input.image.match(/data:(.*?);base64/)?.[1] || 'image/jpeg';
     const imageData = input.image.includes(',') ? input.image.split(',')[1] : input.image;
     parts.push({
       inlineData: {
-        mimeType: 'image/jpeg',
+        mimeType: mimeType,
         data: imageData
       }
     });
   }
 
-  if (input.description) {
+  if (input.image && input.description) {
+    parts.push({ text: `Analyze the artistic style of this image, taking into account this description: ${input.description}` });
+  } else if (input.description) {
     parts.push({ text: `Analyze this artistic description: ${input.description}` });
   } else if (input.image) {
     parts.push({ text: "Analyze the artistic style of this image." });

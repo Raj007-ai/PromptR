@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PromptR | AI Prompt Studio</title>
+    <title>✦  PromptR  ✦ | AI Prompt Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -13,7 +13,7 @@
             --secondary: #3b82f6;
             --secondary-glow: rgba(59, 130, 246, 0.4);
             --accent: #06b6d4;
-            --bg-deep: #050505;
+            --bg-deep: #000000;
             --surface-1: #0a0a0a;
             --surface-2: #121212;
             --border: rgba(255, 255, 255, 0.08);
@@ -57,64 +57,6 @@
         
         ::selection {
             background-color: var(--selection-bg);
-        }
-
-        @keyframes aura-drift {
-            0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: calc(var(--aura-opacity) * 0.6); }
-            33% { transform: translate(8%, -12%) scale(1.1) rotate(120deg); opacity: var(--aura-opacity); }
-            66% { transform: translate(-12%, 4%) scale(0.9) rotate(240deg); opacity: calc(var(--aura-opacity) * 0.8); }
-            100% { transform: translate(0, 0) scale(1) rotate(360deg); opacity: calc(var(--aura-opacity) * 0.6); }
-        }
-
-        @keyframes scanline {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-
-        .scanline-overlay {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(to bottom, transparent 0%, rgba(16, 185, 129, 0.03) 50%, transparent 100%);
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 100;
-            opacity: 0.3;
-            animation: scanline 8s linear infinite;
-        }
-
-        .aura-container {
-            position: fixed;
-            inset: 0;
-            z-index: -10;
-            overflow: hidden;
-            background: radial-gradient(circle at center, var(--surface-1) 0%, var(--bg-deep) 100%);
-            pointer-events: none;
-            transition: all 1s ease;
-        }
-
-        .aura-blob {
-            position: absolute;
-            width: 80vw;
-            height: 80vw;
-            border-radius: 50%;
-            filter: blur(160px);
-            mix-blend-mode: soft-light;
-            animation: aura-drift var(--duration, 20s) ease-in-out infinite;
-            opacity: var(--aura-opacity);
-            transition: all 2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        body:not(.light-mode) .aura-blob {
-            mix-blend-mode: screen;
-        }
-
-        .noise-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 99;
-            opacity: 0.025;
-            pointer-events: none;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
         @keyframes logo-ignite {
@@ -198,6 +140,25 @@
             border-radius: 10px;
         }
         
+        @keyframes text-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes gradient-xy {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .text-gradient-flow {
+            background: linear-gradient(90deg, #10b981, #3b82f6, #06b6d4, #10b981);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: text-flow 4s linear infinite;
+        }
+
         .animate-ignite {
             animation: logo-ignite 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
         }
@@ -269,8 +230,6 @@
 <link rel="stylesheet" href="/index.css">
 </head>
 <body>
-    <div class="noise-overlay"></div>
-    <div class="scanline-overlay"></div>
     <div id="root"></div>
 <script type="module" src="/index.tsx"></script>
 </body>

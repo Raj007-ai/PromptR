@@ -14,6 +14,36 @@ export const COLORS = {
   textMuted: '#475569' // slate-600
 };
 
+export const KEYWORD_EFFECTS: Record<string, string> = {
+  "cinematic lighting": "Adds dramatic, high-contrast shadows and highlights, mimicking film.",
+  "volumetric lighting": "Creates visible light beams (god rays) and atmospheric depth.",
+  "8k": "Encourages the model to generate highly detailed, sharp textures.",
+  "unreal engine": "Produces a hyper-realistic, 3D-rendered aesthetic with advanced lighting.",
+  "octane render": "Results in glossy, high-end 3D rendering styles.",
+  "cyberpunk": "Introduces neon lights, futuristic tech, and dystopian urban elements.",
+  "steampunk": "Adds brass, copper, gears, and Victorian-era industrial elements.",
+  "depth of field": "Blurs the background to focus sharply on the main subject (bokeh).",
+  "macro photography": "Extreme close-up, highly detailed focus on small subjects.",
+  "concept art": "Produces stylized, illustrative designs often used in pre-production.",
+  "matte painting": "Creates expansive, highly detailed landscape backgrounds.",
+  "synthwave": "Adds retro-futuristic 80s aesthetics, neon grids, and magenta/cyan colors.",
+  "chiaroscuro": "Strong contrasts between light and dark, typical of Renaissance art.",
+  "isometric": "Renders the scene from a 3D top-down angled perspective without perspective distortion.",
+  "tilt-shift": "Makes real-world scenes look like miniature scale models.",
+  "bokeh": "Creates aesthetic out-of-focus blur in the background.",
+  "golden hour": "Bathes the scene in warm, soft, directional sunlight.",
+  "blue hour": "Creates a cool, deep blue twilight atmosphere.",
+  "ray tracing": "Enhances realistic reflections, refractions, and shadows.",
+  "hyper-realistic": "Pushes for extreme, photo-like detail and texture accuracy.",
+  "minimalist": "Reduces clutter, focusing on simple shapes, clean lines, and negative space.",
+  "surrealism": "Introduces dreamlike, bizarre, or illogical elements and juxtapositions.",
+  "watercolor": "Applies a soft, fluid, and translucent painted aesthetic.",
+  "oil painting": "Creates rich textures, visible brushstrokes, and classic art styles.",
+  "neon": "Adds bright, glowing, highly saturated light sources.",
+  "dystopian": "Creates a grim, degraded, or oppressive futuristic atmosphere.",
+  "utopian": "Creates a clean, harmonious, highly advanced and peaceful atmosphere."
+};
+
 export const Icons = {
   Prompt: () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -29,6 +59,21 @@ export const Icons = {
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5-1.5H15a1.125 1.125 0 0 1 1.125 1.125v7.5a1.125 1.125 0 0 1-1.125 1.125H15.75Z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 9h12M8.25 11.25h12" />
+    </svg>
+  ),
+  Sun: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+    </svg>
+  ),
+  Sparkles: ({ className = "w-5 h-5" }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 22.5l-.813-6.596a2.25 2.25 0 0 0-1.994-1.994L2.25 12l6.596-.813a2.25 2.25 0 0 0 1.994-1.994L12 2.25l.813 6.596a2.25 2.25 0 0 0 1.994 1.994l6.596.813-6.596.813a2.25 2.25 0 0 0-1.994 1.994l-.813 6.596-6.596-.813z" />
+    </svg>
+  ),
+  Moon: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
     </svg>
   ),
   Search: () => (
@@ -85,6 +130,16 @@ export const Icons = {
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
       <path strokeLinecap="round" strokeLinejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
     </svg>
+  ),
+  Check: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className || "w-5 h-5"}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    </svg>
+  ),
+  Audio: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className || "w-5 h-5"}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+    </svg>
   )
 };
 
@@ -107,17 +162,5 @@ export const LANGUAGE_EXAMPLES = {
   Hinglish: [
     { title: 'Mumbai Rain', keywords: 'Marine Drive, baarish, city lights', tags: ['Cinematic Rim Light', 'HDR', 'Unreal Engine 5'] },
     { title: 'Village Life', keywords: 'Khet, tractor, sunset in Punjab', tags: ['Golden Hour', 'Wide Shot', 'Hyper-Realistic'] }
-  ],
-  Spanish: [
-    { title: 'Plaza de Toros', keywords: 'Arquitectura clásica, sol de tarde, sombras dramáticas', tags: ['Low Angle', 'HDR', 'Cinematic Rim Light'] },
-    { title: 'Amazonas', keywords: 'Selva tropical, cascadas, biodiversidad', tags: ['Wide Shot', 'Volumetric Lighting', '8k Resolution'] }
-  ],
-  French: [
-    { title: 'Parisian Cafe', keywords: 'Rue de Paris, café au lait, style impressionniste', tags: ['Oil Painting', 'Soft Bokeh', 'Art Nouveau'] },
-    { title: 'Château de Loire', keywords: 'Château médiéval, jardins symétriques, brume matinale', tags: ['Symmetrical', 'Volumetric Lighting', 'Masterpiece'] }
-  ],
-  Japanese: [
-    { title: 'Cyber Tokyo', keywords: '新宿の夜, ネオンサイン, サイバーパンク', tags: ['Cyberpunk Neon', 'Ray Tracing', 'Unreal Engine 5'] },
-    { title: 'Zen Garden', keywords: '禅の庭, 砂紋, 桜の花びら', tags: ['Minimalist', 'Rule of Thirds', 'Macro Detail'] }
   ]
 };
