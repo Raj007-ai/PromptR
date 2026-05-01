@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AppView, GenerationLanguage, PromptInput, GeneratedPrompt, SavedItem, BatchVariationResult, AspectRatio, GeneratedImageResult, StyleAnalysisResult } from './types.ts';
 import { Icons, TAG_SUGGESTIONS, LANGUAGE_EXAMPLES } from './constants.tsx';
 import { generateAIPrompt, enhanceKeywords, generatePromptBatch, generateAIImage, editImageWithAI, analyzeArtisticStyle, StudioError } from './geminiService.ts';
+import { apiKeyService } from './services/apiKeyService.ts';
 import hljs from 'highlight.js';
 import { Particles } from './components/Particles.tsx';
 import { ShareModal } from './components/ShareModal.tsx';
@@ -298,6 +299,7 @@ const App: React.FC = () => {
   // Image Generation State
   const [imagePrompt, setImagePrompt] = useState('');
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
+  const [apiKeyInput, setApiKeyInput] = useState(apiKeyService.getApiKey() || '');
   const [selectedStyle, setSelectedStyle] = useState<string>('');
   const [negativeImagePrompt, setNegativeImagePrompt] = useState('');
   const [generatedImage, setGeneratedImage] = useState<GeneratedImageResult | null>(null);
@@ -544,6 +546,12 @@ const App: React.FC = () => {
     playSound('click');
   };
 
+  const handleSaveApiKey = () => {
+    apiKeyService.setApiKey(apiKeyInput);
+    showNotification("API Key saved securely.", "success");
+    playSound('success');
+  };
+
   const handleAnalyzeStyle = async () => {
     if (!styleAnalysisInput.description && !styleAnalysisInput.image) {
       showNotification("Provide an image or description for analysis.", "warning");
@@ -622,7 +630,7 @@ const App: React.FC = () => {
       <nav className="sticky top-0 z-50 px-4 py-8 flex flex-col items-center space-y-8">
         <div className="absolute inset-0 bg-[var(--bg-deep)]/40 backdrop-blur-2xl border-b border-[var(--border)] -z-10" />
         <PromptRLogo className="w-64" animated />
-        <div className="flex glass-panel rounded-2xl p-1.5 shadow-2xl w-full max-w-4xl overflow-x-auto no-scrollbar relative">
+        <div className="flex glass-panel rounded-2xl p-1.5 shadow-2xl w-full max-w-5xl overflow-x-auto no-scrollbar relative">
           <div className="flex min-w-max w-full relative">
             {(Object.values(AppView) as AppView[])
               .filter(view => view !== AppView.BATCH_RESULTS)
@@ -1443,6 +1451,74 @@ const App: React.FC = () => {
                   </motion.div>
                 );
               }) : <div className="col-span-full py-32 text-center opacity-20 text-[9px] font-black uppercase tracking-[0.4em]">No Curated Blueprints</div>}
+            </div>
+          </motion.div>
+        )}
+
+        {activeView === AppView.SETTINGS && (
+          <motion.div
+            key="settings"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.4 }}
+            className="max-w-4xl mx-auto space-y-10"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-6">
+              <h2 className="text-3xl font-black text-[var(--text-main)] uppercase tracking-tight">Studio Settings</h2>
+            </div>
+
+            <div className="glass-panel p-12 rounded-[3rem] border-white/5 space-y-10 shadow-[0_32px_64px_rgba(0,0,0,0.3)]">
+              <div className="space-y-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <Icons.Settings className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-[var(--text-main)] uppercase tracking-tight">Gemini API Configuration</h3>
+                    <p className="text-[10px] text-emerald-400/60 font-bold uppercase tracking-widest">Secure Local Storage</p>
+                  </div>
+                </div>
+
+                <p className="text-sm text-[var(--text-muted)] leading-relaxed font-medium">
+                  Your API key is stored locally in your browser and never sent to our servers.
+                  It is used only to authenticate requests to Google Gemini AI services directly from your client.
+                </p>
+
+                <div className="space-y-4">
+                  <div className="relative group">
+                    <input
+                      type="password"
+                      value={apiKeyInput}
+                      onChange={(e) => setApiKeyInput(e.target.value)}
+                      placeholder="Enter your Gemini API Key..."
+                      className="w-full p-6 rounded-2xl bg-white/[0.015] border border-white/10 text-base font-medium focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] placeholder:text-white/20"
+                    />
+                  </div>
+                  <button
+                    onClick={handleSaveApiKey}
+                    className="w-full py-5 bg-gradient-to-r from-emerald-500 to-blue-600 text-slate-950 font-black uppercase tracking-[0.4em] text-[10px] rounded-2xl shadow-2xl hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center space-x-3 group"
+                  >
+                    <Icons.Save className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <span>Save Secure Configuration</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-8 border-t border-white/5">
+                <div className="flex items-start space-x-4 p-6 bg-red-500/5 border border-red-500/10 rounded-[2rem]">
+                  <div className="mt-1 text-red-400">
+                    <Icons.Trash className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-[10px] font-black text-red-400 uppercase tracking-widest">Security Protocol</h4>
+                    <p className="text-xs text-red-400/70 leading-relaxed font-medium italic">
+                      Ensure you are using a restricted API key. Never share your key.
+                      If you suspect compromise, revoke it in the Google AI Studio console immediately.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
