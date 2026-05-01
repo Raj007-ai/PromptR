@@ -88,6 +88,7 @@ const PromptEditor: React.FC<{
         {value && (
           <button 
             onClick={onClear}
+                      aria-label="Clear Keywords"
             className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100 z-10"
             title="Clear Keywords"
           >
@@ -725,7 +726,7 @@ const App: React.FC = () => {
                           className="flex items-center space-x-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[9px] font-black uppercase tracking-widest text-emerald-400"
                         >
                           <span>{tag}</span>
-                          <button onClick={() => setTags(tags.filter(t => t !== tag))} className="hover:text-white transition-colors">×</button>
+                          <button aria-label="Remove tag" onClick={() => setTags(tags.filter(t => t !== tag))} className="hover:text-white transition-colors">×</button>
                         </motion.span>
                       ))}
                     </AnimatePresence>
@@ -779,7 +780,7 @@ const App: React.FC = () => {
                       {image ? (
                         <>
                           <img src={image} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
-                          <button onClick={(e) => { e.stopPropagation(); setImage(null); }} className="absolute top-2 right-2 p-1.5 bg-red-500/20 rounded-full hover:bg-red-500 transition-all">×</button>
+                          <button aria-label="Remove image" onClick={(e) => { e.stopPropagation(); setImage(null); }} className="absolute top-2 right-2 p-1.5 bg-red-500/20 rounded-full hover:bg-red-500 transition-all">×</button>
                         </>
                       ) : (
                         <div className="flex flex-col items-center justify-center h-full space-y-2 opacity-30 group-hover:opacity-50 transition-opacity">
@@ -1041,6 +1042,7 @@ const App: React.FC = () => {
                   {imagePrompt && (
                     <button 
                       onClick={() => { setImagePrompt(''); playSound('click'); }}
+                      aria-label="Clear Description"
                       className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100"
                       title="Clear Description"
                     >
@@ -1143,7 +1145,7 @@ const App: React.FC = () => {
                               alt="Generated AI Blueprint" 
                             />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center space-x-4 backdrop-blur-sm">
-                              <button onClick={() => downloadImage(generatedImage.url, imagePrompt)} className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
+                              <button aria-label="Download Image" onClick={() => downloadImage(generatedImage.url, imagePrompt)} className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
                             </div>
                           </div>
                         )}
@@ -1177,6 +1179,7 @@ const App: React.FC = () => {
                               {refinementInstruction && (
                                 <button 
                                   onClick={() => { setRefinementInstruction(''); playSound('click'); }}
+                                  aria-label="Clear Instructions"
                                   className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100"
                                   title="Clear Instructions"
                                 >
@@ -1254,7 +1257,7 @@ const App: React.FC = () => {
                 <div key={idx} className="glass-panel p-8 rounded-[2.5rem] border-white/5 hover:border-blue-500/20 transition-all group">
                   <div className="flex justify-between items-start mb-6">
                     <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Derivative {idx + 1}</span>
-                    <button onClick={async () => { 
+                    <button aria-label="Copy variation" onClick={async () => {
                       try {
                         await navigator.clipboard.writeText(v); 
                         showNotification("Variation buffered."); 
@@ -1330,12 +1333,14 @@ const App: React.FC = () => {
                             setSharePromptTitle(item.title); 
                             setShareModalOpen(true); 
                           }}
+                          aria-label="Share Record"
                           className="p-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl hover:bg-blue-500/20 transition-all backdrop-blur-md opacity-40 group-hover:opacity-100"
                           title="Share Record"
                         >
                           <Icons.Share className="w-5 h-5" />
                         </button>
                         <button 
+                          aria-label="Delete Record"
                           onClick={(e) => { e.stopPropagation(); deleteHistoryItem(item.id); }}
                           className="p-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl hover:bg-red-500/20 transition-all backdrop-blur-md opacity-40 group-hover:opacity-100"
                           title="Delete Record"
@@ -1417,12 +1422,13 @@ const App: React.FC = () => {
                             setSharePromptTitle(item.title); 
                             setShareModalOpen(true); 
                           }}
+                          aria-label="Share Record"
                           className="text-blue-400 opacity-40 hover:opacity-100 transition-opacity"
                           title="Share Record"
                         >
                           <Icons.Share className="w-5 h-5" />
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); setSavedItems(savedItems.filter(i => i.id !== item.id)); showNotification("Record expunged."); }} className="text-red-400 opacity-40 hover:opacity-100 transition-opacity"><Icons.Trash /></button>
+                        <button aria-label="Delete Record" onClick={(e) => { e.stopPropagation(); setSavedItems(savedItems.filter(i => i.id !== item.id)); showNotification("Record expunged."); }} className="text-red-400 opacity-40 hover:opacity-100 transition-opacity"><Icons.Trash /></button>
                         <div className={`w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center ${isSelected ? 'bg-emerald-500 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'border-white/10 group-hover:border-emerald-500/30'}`}>
                           {isSelected && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-2 h-2 rounded-full bg-white" />}
                         </div>
@@ -1505,6 +1511,7 @@ const App: React.FC = () => {
                       <div className="relative w-40 h-40 shrink-0 rounded-3xl overflow-hidden border border-white/10 group">
                         <img src={styleAnalysisInput.image} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                         <button 
+                          aria-label="Remove image"
                           onClick={(e) => { e.stopPropagation(); setStyleAnalysisInput(prev => ({ ...prev, image: null })); }} 
                           className="absolute top-2 right-2 p-1.5 bg-red-500/80 rounded-full hover:bg-red-500 transition-all z-10 text-white"
                         >
@@ -1522,6 +1529,7 @@ const App: React.FC = () => {
                       {styleAnalysisInput.description && (
                         <button 
                           onClick={() => { setStyleAnalysisInput(prev => ({ ...prev, description: '' })); playSound('click'); }}
+                          aria-label="Clear Description"
                           className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100"
                           title="Clear Description"
                         >
