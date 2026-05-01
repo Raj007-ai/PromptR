@@ -1,0 +1,3 @@
+## 2025-03-05 - Add ARIA labels to icon-only buttons for accessibility
+**Learning:** Found an accessibility issue pattern specific to this app's components, where multiple buttons across `App.tsx` and `components/ShareModal.tsx` were missing text content and only had icons (like clear keywords, copy, download, remove images, share record, delete record). This poses a problem for screen readers.
+**Action:** When adding new UI components or buttons that consist entirely of an icon, ensure an explicit `aria-label` is applied so screen readers can correctly describe the element's purpose to users.
