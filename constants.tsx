@@ -1,19 +1,5 @@
 import React from 'react';
 
-export const COLORS = {
-  primary: '#10b981', // emerald-500
-  secondary: '#3b82f6', // blue-500
-  accent: '#06b6d4', // cyan-500
-  bg: '#000000',
-  surface1: '#020617', // slate-950
-  surface2: '#0f172a', // slate-900
-  surface3: '#1e293b', // slate-800
-  border: 'rgba(30, 41, 59, 0.6)',
-  textPrimary: '#f8fafc', // slate-50
-  textSecondary: '#94a3b8', // slate-400
-  textMuted: '#475569' // slate-600
-};
-
 export const Icons = {
   Prompt: () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
