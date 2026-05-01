@@ -18,10 +18,10 @@ export const generateAIPrompt = async (input: PromptInput): Promise<GeneratedPro
     config.tools = [{ googleSearch: {} }];
   }
 
-  // Fix: Removed reference to 'input.tags' as it does not exist on the PromptInput type (Line 25 fix)
   const parts: any[] = [
     { text: `You are a world-class AI prompt engineer. Create a detailed, effective prompt based on the following:
       Keywords: ${input.keywords}
+      Technical Tags: ${(input.tags || []).join(', ')}
       Target Language: ${input.language}
       
       Requirements:
@@ -48,12 +48,26 @@ export const generateAIPrompt = async (input: PromptInput): Promise<GeneratedPro
   });
 
   const content = response.text || "Error generating prompt.";
-  const references = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+  const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
 
   // Fix: satisfies GeneratedPrompt interface requirements
   return {
     refinedPrompt: content,
-    references: references.map((chunk: any) => chunk)
+    references: groundingChunks
+      .filter((chunk: any) => chunk.web)
+      .map((chunk: any) => ({
+        web: {
+          uri: chunk.web.uri || "",
+          title: chunk.web.title || ""
+        }
+      })),
+    inputContext: {
+      keywords: input.keywords,
+      tags: Array.isArray(input.tags) ? [...input.tags] : [],
+      language: input.language,
+      useSearch: !!input.useSearch,
+      useThinking: !!input.useThinking
+    }
   };
 };
 
