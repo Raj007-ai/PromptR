@@ -5,7 +5,8 @@ export enum AppView {
   SAVED = 'SAVED',
   HISTORY = 'HISTORY',
   BATCH_RESULTS = 'BATCH_RESULTS',
-  STYLE_ANALYZER = 'STYLE_ANALYZER'
+  STYLE_ANALYZER = 'STYLE_ANALYZER',
+  SETTINGS = 'SETTINGS'
 }
 
 export enum GenerationLanguage {
