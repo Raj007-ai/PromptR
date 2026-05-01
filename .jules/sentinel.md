@@ -1,0 +1,4 @@
+## 2025-05-01 - DOMPurify usage for user-provided Markdown fallback in React
+**Vulnerability:** A Cross-Site Scripting (XSS) vulnerability was found when the code highlighter component (`CodeHighlighter` in `App.tsx`) fell back to the raw string if the `highlight.js` execution failed or threw an error. Since it rendered via `dangerouslySetInnerHTML`, the unescaped markdown content was directly injected into the DOM as HTML, opening the application to malicious script execution if a user crafted a prompt to trigger a failure.
+**Learning:** Even when wrapping a library like `highlight.js` that escapes code tags by default, raw `content` fallbacks that use React's `dangerouslySetInnerHTML` must be explicitly sanitized, especially when dealing with unpredictable user-provided AI prompts.
+**Prevention:** Always wrap variables passed into `dangerouslySetInnerHTML` with `DOMPurify.sanitize(str)` to neutralize potentially malicious raw strings.

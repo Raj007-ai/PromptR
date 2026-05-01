@@ -5,6 +5,7 @@ import { AppView, GenerationLanguage, PromptInput, GeneratedPrompt, SavedItem, B
 import { Icons, TAG_SUGGESTIONS, LANGUAGE_EXAMPLES } from './constants.tsx';
 import { generateAIPrompt, enhanceKeywords, generatePromptBatch, generateAIImage, editImageWithAI, analyzeArtisticStyle, StudioError } from './geminiService.ts';
 import hljs from 'highlight.js';
+import DOMPurify from 'dompurify';
 import { Particles } from './components/Particles.tsx';
 import { ShareModal } from './components/ShareModal.tsx';
 import Editor from 'react-simple-code-editor';
@@ -260,13 +261,17 @@ const CodeHighlighter: React.FC<{ content: string }> = ({ content }) => {
     if (!content) return null;
     try {
       const clean = content.replace(/^```(\w+)?\n?|```$/g, '');
-      return hljs.highlightAuto(clean).value;
+      const rawHtml = hljs.highlightAuto(clean).value;
+      return DOMPurify.sanitize(rawHtml);
     } catch (e) { return null; }
   }, [content]);
 
+  const fallbackHtml = useMemo(() => DOMPurify.sanitize(content || ''), [content]);
+
   return (
     <pre className="text-sm font-mono leading-relaxed overflow-x-auto custom-scrollbar p-6 bg-white/[0.02] rounded-3xl border border-white/5 shadow-inner backdrop-blur-md">
-      <code className="hljs" dangerouslySetInnerHTML={{ __html: highlighted || content }} />
+      {/* 🛡️ Sentinel: Sanitize HTML to prevent XSS vulnerabilities when rendering user-provided content */}
+      <code className="hljs" dangerouslySetInnerHTML={{ __html: highlighted || fallbackHtml }} />
     </pre>
   );
 };
