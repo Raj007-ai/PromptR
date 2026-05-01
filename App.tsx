@@ -336,6 +336,7 @@ const App: React.FC = () => {
     }
   });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const selectedIdsSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
   const [styleAnalysisResult, setStyleAnalysisResult] = useState<StyleAnalysisResult | null>(null);
   const [styleAnalysisInput, setStyleAnalysisInput] = useState({ description: '', image: null as string | null });
@@ -496,7 +497,7 @@ const App: React.FC = () => {
     try {
       const allSources = [...savedItems, ...historyItems];
       const selectedPrompts = allSources
-        .filter(item => selectedIds.includes(item.id))
+        .filter(item => selectedIdsSet.has(item.id))
         .map(item => {
           if (item.type === 'prompt') return (item.data as GeneratedPrompt).refinedPrompt;
           return (item.data as GeneratedImageResult).revisedPrompt;
@@ -1300,7 +1301,7 @@ const App: React.FC = () => {
             </div>
             <div className="space-y-6">
               {historyItems.length > 0 ? historyItems.map(item => {
-                const isSelected = selectedIds.includes(item.id);
+                const isSelected = selectedIdsSet.has(item.id);
                 const isImage = item.type === 'image';
                 const itemData = item.data;
                 
@@ -1392,7 +1393,7 @@ const App: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {savedItems.length > 0 ? savedItems.map(item => {
-                const isSelected = selectedIds.includes(item.id);
+                const isSelected = selectedIdsSet.has(item.id);
                 const isImage = item.type === 'image';
                 const itemData = item.data;
 
