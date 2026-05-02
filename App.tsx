@@ -51,6 +51,7 @@ const PromptEditor: React.FC<{
                 onClick={onCopy}
                 className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all"
                 title="Copy to Clipboard"
+                aria-label="Copy to Clipboard"
               >
                 <Icons.Copy />
               </button>
@@ -59,6 +60,7 @@ const PromptEditor: React.FC<{
               onClick={onClear}
               className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all"
               title="Clear Keywords"
+              aria-label="Clear Keywords"
             >
               <Icons.X className="w-3 h-3" />
             </button>
@@ -1092,7 +1094,7 @@ const App: React.FC = () => {
                                     alt={`Generated AI Blueprint ${idx + 1}`} 
                                   />
                                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-opacity rounded-2xl flex items-center justify-center space-x-4 backdrop-blur-sm">
-                                    <button onClick={() => downloadImage(url, imagePrompt)} className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
+                                    <button onClick={() => downloadImage(url, imagePrompt)} aria-label="Download Image" className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
                                   </div>
                                 </div>
                               ))
@@ -1104,7 +1106,7 @@ const App: React.FC = () => {
                                   alt="Generated AI Blueprint" 
                                 />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center space-x-4 backdrop-blur-sm">
-                                  <button onClick={() => downloadImage(generatedImage.url, imagePrompt)} className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
+                                  <button onClick={() => downloadImage(generatedImage.url, imagePrompt)} aria-label="Download Image" className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
                                 </div>
                               </>
                             )}
@@ -1142,6 +1144,7 @@ const App: React.FC = () => {
                                   onClick={() => { setRefinementInstruction(''); playSound('click'); }}
                                   className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100"
                                   title="Clear Instructions"
+                                  aria-label="Clear Instructions"
                                 >
                                   <Icons.X className="w-3 h-3" />
                                 </button>
@@ -1286,6 +1289,7 @@ const App: React.FC = () => {
                       <button 
                         onClick={(e) => { e.stopPropagation(); setStyleAnalysisInput(prev => ({ ...prev, image: null })); }} 
                         className="absolute top-4 right-4 p-3 bg-red-500/90 rounded-full hover:bg-red-500 hover:scale-110 transition-all z-10 text-white opacity-0 group-hover:opacity-100 translate-y-[-10px] group-hover:translate-y-0 shadow-lg"
+                        aria-label="Clear Image"
                       >
                         <Icons.X className="w-4 h-4" />
                       </button>
@@ -1306,6 +1310,7 @@ const App: React.FC = () => {
                           onClick={() => { setStyleAnalysisInput(prev => ({ ...prev, description: '' })); playSound('click'); }}
                           className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100"
                           title="Clear Description"
+                          aria-label="Clear Description"
                         >
                           <Icons.X className="w-3 h-3" />
                         </button>
