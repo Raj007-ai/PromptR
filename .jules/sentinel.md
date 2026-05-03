@@ -1,0 +1,4 @@
+## 2024-05-18 - React Code Editor XSS via highlight.js
+**Vulnerability:** The application used `react-simple-code-editor` where the `highlight` prop was defined as `code => code`. This passed user input directly to the component, which uses `dangerouslySetInnerHTML` internally to render the highlighted code, creating a critical Cross-Site Scripting (XSS) vulnerability.
+**Learning:** Even when not explicitly writing `dangerouslySetInnerHTML` in your own code, third-party libraries (especially those rendering syntax highlighting, markdown, or rich text) often use it under the hood. You cannot assume a library handles sanitization unless explicitly documented.
+**Prevention:** Always sanitize the output of syntax highlighters (like `highlight.js`) or any user-controlled input before passing it to components that might render raw HTML. Use `DOMPurify.sanitize()` as an ironclad defense layer before returning the string to the editor component.
