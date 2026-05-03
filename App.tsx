@@ -10,6 +10,8 @@ import { PromptInterpreter } from './components/PromptInterpreter.tsx';
 import { UserLogo } from './components/UserLogo.tsx';
 import { ThemeToggle } from './components/ThemeToggle.tsx';
 import Editor from 'react-simple-code-editor';
+import hljs from 'highlight.js';
+import DOMPurify from 'dompurify';
 
 const PromptEditor: React.FC<{
   value: string;
@@ -31,7 +33,7 @@ const PromptEditor: React.FC<{
           <Editor
             value={value}
             onValueChange={onChange}
-            highlight={code => code}
+            highlight={code => DOMPurify.sanitize(hljs.highlightAuto(code).value)}
             padding={24}
             style={editorStyle || {
               fontFamily: '"Inter", sans-serif',
@@ -806,7 +808,7 @@ const App: React.FC = () => {
                               <Editor
                                 value={generatedResult.negativePrompt || ''}
                                 onValueChange={(val) => setGeneratedResult({ ...generatedResult, negativePrompt: val })}
-                                highlight={code => code}
+                                highlight={code => DOMPurify.sanitize(hljs.highlightAuto(code).value)}
                                 padding={24}
                                 style={{
                                   fontFamily: '"Inter", sans-serif',
