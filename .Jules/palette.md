@@ -1,0 +1,3 @@
+## 2024-05-04 - Icon-Only Floating Elements Accessibility
+**Learning:** Floating elements (like theme toggles or user menus) often rely solely on title attributes for context. While this works on hover, screen readers benefit explicitly from `aria-label`, and keyboard navigators require robust `focus-visible` states to identify when these absolute-positioned components gain focus. Adding generic `outline-none focus-visible:ring-2` ensures interactive items stand out to keyboard users.
+**Action:** Consistently ensure floating, icon-only buttons include an `aria-label` matching their title and clear visual focus rings, rather than just hover states.
