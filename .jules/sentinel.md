@@ -1,0 +1,4 @@
+## 2023-10-27 - [XSS in react-simple-code-editor]
+**Vulnerability:** The `react-simple-code-editor` component in `App.tsx` used `highlight={code => code}` which returned the raw code string into `dangerouslySetInnerHTML`. This could allow cross-site scripting (XSS) if the code contained malicious tags.
+**Learning:** We must safely encode characters in the `highlight` callback. Using DOMPurify to strip HTML tags will result in functional regressions where HTML tags are stripped from the editor view, rendering code invisible to the user.
+**Prevention:** Instead of completely sanitizing the input with DOMPurify, use an HTML escape function (`escapeHtml`) to safely encode specific reserved characters like `<, >, &, ", '` to their entity equivalents.
