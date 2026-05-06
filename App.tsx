@@ -31,7 +31,7 @@ const PromptEditor: React.FC<{
           <Editor
             value={value}
             onValueChange={onChange}
-            highlight={code => code}
+            highlight={code => escapeHtml(code)}
             padding={24}
             style={editorStyle || {
               fontFamily: '"Inter", sans-serif',
@@ -203,6 +203,15 @@ const CodeHighlighter: React.FC<{ content: string }> = ({ content }) => {
       <code>{clean}</code>
     </pre>
   );
+};
+
+const escapeHtml = (unsafe: string) => {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 };
 
 const App: React.FC = () => {
@@ -806,7 +815,7 @@ const App: React.FC = () => {
                               <Editor
                                 value={generatedResult.negativePrompt || ''}
                                 onValueChange={(val) => setGeneratedResult({ ...generatedResult, negativePrompt: val })}
-                                highlight={code => code}
+                                highlight={code => escapeHtml(code)}
                                 padding={24}
                                 style={{
                                   fontFamily: '"Inter", sans-serif',
