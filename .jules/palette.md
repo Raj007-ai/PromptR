@@ -1,0 +1,3 @@
+## 2025-03-05 - Missing ARIA Labels and Keyboard Focus on Icon Buttons
+**Learning:** Icon-only buttons (like the theme toggle) lack `aria-label` attributes for screen readers and visible focus rings (`focus-visible:ring-2`) for keyboard users. This makes navigation and understanding of functionality difficult for users utilizing assistive technologies.
+**Action:** Always add descriptive `aria-label`s and Tailwind focus utility classes (`focus-visible:ring-2 focus-visible:ring-[color] outline-none`) to icon-only interactive elements to ensure full accessibility.
