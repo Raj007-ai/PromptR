@@ -11,6 +11,18 @@ import { UserLogo } from './components/UserLogo.tsx';
 import { ThemeToggle } from './components/ThemeToggle.tsx';
 import Editor from 'react-simple-code-editor';
 
+// Sentinel: Prevent XSS in react-simple-code-editor.
+// We use entity escaping instead of DOMPurify because stripping tags
+// causes functional regressions by making code invisible to the user.
+const escapeHtml = (unsafe: string) => {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
 const PromptEditor: React.FC<{
   value: string;
   onChange: (val: string) => void;
@@ -31,7 +43,7 @@ const PromptEditor: React.FC<{
           <Editor
             value={value}
             onValueChange={onChange}
-            highlight={code => code}
+            highlight={code => escapeHtml(code)}
             padding={24}
             style={editorStyle || {
               fontFamily: '"Inter", sans-serif',
@@ -806,7 +818,7 @@ const App: React.FC = () => {
                               <Editor
                                 value={generatedResult.negativePrompt || ''}
                                 onValueChange={(val) => setGeneratedResult({ ...generatedResult, negativePrompt: val })}
-                                highlight={code => code}
+                                highlight={code => escapeHtml(code)}
                                 padding={24}
                                 style={{
                                   fontFamily: '"Inter", sans-serif',
