@@ -49,16 +49,18 @@ const PromptEditor: React.FC<{
             {onCopy && (
               <button 
                 onClick={onCopy}
-                className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all"
+                className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all focus-visible:ring-2 outline-none"
                 title="Copy to Clipboard"
+                aria-label="Copy to Clipboard"
               >
                 <Icons.Copy />
               </button>
             )}
             <button 
               onClick={onClear}
-              className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all"
+              className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all focus-visible:ring-2 outline-none"
               title="Clear Keywords"
+              aria-label="Clear Keywords"
             >
               <Icons.X className="w-3 h-3" />
             </button>
@@ -586,7 +588,7 @@ const App: React.FC = () => {
                           className="flex items-center space-x-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[9px] font-black uppercase tracking-widest text-emerald-400"
                         >
                           <span>{tag}</span>
-                          <button onClick={() => setTags(tags.filter(t => t !== tag))} className="hover:text-white transition-colors">×</button>
+                          <button onClick={() => setTags(tags.filter(t => t !== tag))} className="hover:text-white transition-colors focus-visible:ring-2 outline-none rounded-full px-1" aria-label="Remove tag">×</button>
                         </motion.span>
                       ))}
                     </AnimatePresence>
@@ -642,7 +644,7 @@ const App: React.FC = () => {
                       {image ? (
                         <>
                           <img src={image} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
-                          <button onClick={(e) => { e.stopPropagation(); setImage(null); }} className="absolute top-2 right-2 p-1.5 bg-red-500/20 rounded-full hover:bg-red-500 transition-all">×</button>
+                          <button onClick={(e) => { e.stopPropagation(); setImage(null); }} className="absolute top-2 right-2 p-1.5 bg-red-500/20 rounded-full hover:bg-red-500 transition-all focus-visible:ring-2 outline-none" aria-label="Remove reference image">×</button>
                         </>
                       ) : (
                         <div className="flex flex-col items-center justify-center h-full space-y-2 opacity-30 group-hover:opacity-50 transition-opacity">
@@ -1092,7 +1094,7 @@ const App: React.FC = () => {
                                     alt={`Generated AI Blueprint ${idx + 1}`} 
                                   />
                                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-opacity rounded-2xl flex items-center justify-center space-x-4 backdrop-blur-sm">
-                                    <button onClick={() => downloadImage(url, imagePrompt)} className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
+                                    <button onClick={() => downloadImage(url, imagePrompt)} className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all focus-visible:ring-2 outline-none" aria-label="Download generated image"><Icons.Image /></button>
                                   </div>
                                 </div>
                               ))
@@ -1104,7 +1106,7 @@ const App: React.FC = () => {
                                   alt="Generated AI Blueprint" 
                                 />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center space-x-4 backdrop-blur-sm">
-                                  <button onClick={() => downloadImage(generatedImage.url, imagePrompt)} className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
+                                  <button onClick={() => downloadImage(generatedImage.url, imagePrompt)} className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all focus-visible:ring-2 outline-none" aria-label="Download generated image"><Icons.Image /></button>
                                 </div>
                               </>
                             )}
@@ -1285,7 +1287,8 @@ const App: React.FC = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                       <button 
                         onClick={(e) => { e.stopPropagation(); setStyleAnalysisInput(prev => ({ ...prev, image: null })); }} 
-                        className="absolute top-4 right-4 p-3 bg-red-500/90 rounded-full hover:bg-red-500 hover:scale-110 transition-all z-10 text-white opacity-0 group-hover:opacity-100 translate-y-[-10px] group-hover:translate-y-0 shadow-lg"
+                        className="absolute top-4 right-4 p-3 bg-red-500/90 rounded-full hover:bg-red-500 hover:scale-110 transition-all z-10 text-white opacity-0 group-hover:opacity-100 translate-y-[-10px] group-hover:translate-y-0 shadow-lg focus-visible:ring-2 outline-none"
+                        aria-label="Remove style analysis image"
                       >
                         <Icons.X className="w-4 h-4" />
                       </button>
