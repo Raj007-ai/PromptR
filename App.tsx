@@ -45,20 +45,22 @@ const PromptEditor: React.FC<{
           />
         </div>
         {value && (
-          <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity z-10">
             {onCopy && (
               <button 
                 onClick={onCopy}
-                className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all"
+                className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                 title="Copy to Clipboard"
+                aria-label="Copy to Clipboard"
               >
                 <Icons.Copy />
               </button>
             )}
             <button 
               onClick={onClear}
-              className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all"
+              className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               title="Clear Keywords"
+              aria-label="Clear Keywords"
             >
               <Icons.X className="w-3 h-3" />
             </button>
@@ -1140,8 +1142,9 @@ const App: React.FC = () => {
                               {refinementInstruction && (
                                 <button 
                                   onClick={() => { setRefinementInstruction(''); playSound('click'); }}
-                                  className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100"
+                                  className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                                   title="Clear Instructions"
+                                  aria-label="Clear Instructions"
                                 >
                                   <Icons.X className="w-3 h-3" />
                                 </button>
@@ -1304,8 +1307,9 @@ const App: React.FC = () => {
                       {styleAnalysisInput.description && (
                         <button 
                           onClick={() => { setStyleAnalysisInput(prev => ({ ...prev, description: '' })); playSound('click'); }}
-                          className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100"
+                          className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                           title="Clear Description"
+                          aria-label="Clear Description"
                         >
                           <Icons.X className="w-3 h-3" />
                         </button>
