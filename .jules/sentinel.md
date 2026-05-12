@@ -1,0 +1,4 @@
+## 2025-03-09 - XSS Vulnerability in react-simple-code-editor
+**Vulnerability:** The application used an identity function (`highlight={code => code}`) for the `highlight` prop in `react-simple-code-editor`. This allowed raw HTML and `<script>` tags to be injected directly into the DOM via user input in the editor fields (e.g. prompt keywords, negative prompts), leading to Cross-Site Scripting (XSS).
+**Learning:** Using DOMPurify to sanitize the input strips out legitimate characters like `<` and `>`, making code invisible or breaking formatting for developers. The editor needs the code to be rendered visibly but not executed.
+**Prevention:** Instead of using a sanitizer that strips HTML tags, use an `escapeHtml` utility function to replace dangerous HTML characters (`<`, `>`, `&`, `"`, `'`) with their corresponding HTML entities. Pass this utility function to the `highlight` prop to ensure user input is safely encoded before being rendered.
