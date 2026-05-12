@@ -1,0 +1,3 @@
+## 2024-05-12 - Accessibility of Icon-Only Buttons
+**Learning:** Icon-only action buttons that rely on `opacity-0 group-hover:opacity-100` are completely invisible and inaccessible to keyboard users because they can only be revealed by mouse hover. Furthermore, they are missing `aria-label` attributes.
+**Action:** Combine `group-hover:opacity-100` with `focus-within:opacity-100` on the container, or apply `focus-visible:opacity-100` directly to the button, ensuring it becomes visible and accessible via keyboard navigation. Additionally, apply standard focus rings via `focus-visible:ring-2 focus-visible:outline-none` and provide `aria-label`s to all icon-only buttons.
