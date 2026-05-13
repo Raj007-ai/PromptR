@@ -11,6 +11,17 @@ import { UserLogo } from './components/UserLogo.tsx';
 import { ThemeToggle } from './components/ThemeToggle.tsx';
 import Editor from 'react-simple-code-editor';
 
+const escapeHtml = (text: string) => {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+};
+
 const PromptEditor: React.FC<{
   value: string;
   onChange: (val: string) => void;
@@ -31,7 +42,7 @@ const PromptEditor: React.FC<{
           <Editor
             value={value}
             onValueChange={onChange}
-            highlight={code => code}
+            highlight={code => escapeHtml(code)}
             padding={24}
             style={editorStyle || {
               fontFamily: '"Inter", sans-serif',
@@ -806,7 +817,7 @@ const App: React.FC = () => {
                               <Editor
                                 value={generatedResult.negativePrompt || ''}
                                 onValueChange={(val) => setGeneratedResult({ ...generatedResult, negativePrompt: val })}
-                                highlight={code => code}
+                                highlight={code => escapeHtml(code)}
                                 padding={24}
                                 style={{
                                   fontFamily: '"Inter", sans-serif',
