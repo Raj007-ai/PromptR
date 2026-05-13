@@ -1,0 +1,4 @@
+## 2024-11-20 - Prevent XSS in react-simple-code-editor
+**Vulnerability:** XSS vulnerability in `react-simple-code-editor` because the input was directly returned without sanitization via the `highlight` prop (`highlight={code => code}`).
+**Learning:** Returning unescaped raw string input in the `highlight` prop allows un-sanitized code injection directly into the DOM representation of the code editor. `DOMPurify` should be avoided for code editors since it strips useful code tags away (e.g. valid HTML).
+**Prevention:** Instead of using DOMPurify, use an HTML escape function that targets explicitly reserved HTML characters (`&`, `<`, `>`, `"`, `'`) and replaces them with their entity equivalents to prevent XSS.
