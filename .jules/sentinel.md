@@ -1,0 +1,4 @@
+## 2025-03-05 - Cross-Site Scripting (XSS) in react-simple-code-editor
+**Vulnerability:** Unsanitized input passed directly to the `highlight` prop in `react-simple-code-editor` via `highlight={code => code}` allows XSS if the input contains malicious HTML/JavaScript tags.
+**Learning:** Standard sanitization libraries like DOMPurify are not suitable here because they strip HTML tags entirely, causing functional regressions by making the code invisible or incorrectly rendered to the user.
+**Prevention:** Always use an explicit HTML escaping function to convert reserved characters (`<`, `>`, `&`, `"`, `'`) to their HTML entity equivalents when rendering text as code in editors, avoiding standard DOM purification that alters the literal content.
