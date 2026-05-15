@@ -1,0 +1,3 @@
+## 2024-06-03 - Keyboard Navigation for Hover-Revealed Actions
+**Learning:** Icon-only action buttons that rely on `opacity-0 group-hover:opacity-100` are completely inaccessible to keyboard users because the elements remain invisible or untargetable during standard tab navigation.
+**Action:** Always combine `group-hover:opacity-100` with `focus-within:opacity-100` on the container or `focus-visible:opacity-100` on the button itself. Additionally, apply standard keyboard accessibility classes like `focus-visible:ring-2` and `outline-none` alongside appropriate `aria-label` attributes to ensure screen reader support.
