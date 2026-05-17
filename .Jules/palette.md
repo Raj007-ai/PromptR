@@ -1,0 +1,3 @@
+## 2024-05-17 - Keyboard Inaccessibility of Hover-Hidden Elements
+**Learning:** Interactive elements hidden behind `opacity-0 group-hover:opacity-100` are completely inaccessible to keyboard users because they cannot hover to reveal them, and tabbing to them blind is a bad experience (and often impossible if the container hides overflow or they lack focus indicators).
+**Action:** Always pair `group-hover:opacity-100` with `focus-within:opacity-100` on the container or `focus-visible:opacity-100` on the interactive element itself. Also ensure icon-only buttons have an `aria-label` and `focus-visible:ring-2 outline-none` to guarantee clear visibility and screen reader support when focused.
