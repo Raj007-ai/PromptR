@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, ThinkingLevel, Modality } from "@google/genai";
-import { GenerationLanguage, PromptInput, GeneratedPrompt, ImageGenerationInput, GeneratedImageResult, AspectRatio, StyleAnalysisResult } from "./types.ts";
+import { GenerationLanguage, PromptInput, GeneratedPrompt, ImageGenerationInput, GeneratedImageResult, AspectRatio, StyleAnalysisResult, OptimizationResult } from "./types.ts";
 
 export class StudioError extends Error {
   constructor(public message: string, public type: 'safety' | 'network' | 'parsing' | 'generic' = 'generic') {
@@ -263,33 +263,60 @@ export const enhanceKeywords = async (keywords: string, isVisual: boolean = fals
   }
 };
 
-export const suggestEnhancements = async (keywords: string): Promise<{ enhancedKeywords: string, suggestedTags: string[] }> => {
+export const suggestEnhancements = async (keywords: string, tags: string[] = [], image?: string): Promise<OptimizationResult> => {
   try {
     const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
     const ai = new GoogleGenAI({ apiKey: apiKey as string });
     
-    const systemInstruction = `You are an AI prompt engineering assistant. 
-Given a short user concept, provide an enhanced, highly descriptive version of the concept (max 20 words) and suggest 5-8 technical tags (e.g., lighting, camera, style, medium, resolution) that perfectly match the concept.
+    const systemInstruction = `You are an AI Prompt Optimizer. 
+Your goal is to take a set of keywords, tags, and optionally an image, and suggest ways to optimize the prompt for maximum impact.
 
-RESPONSE FORMAT (JSON):
+Analyze:
+1. Keywords: Are they specific enough? Do they lack sensory details?
+2. Tags: Are they redundant or missing key technical descriptors?
+3. Context: How can the structure be improved (e.g., [Subject], [Action], [Environment], [Lighting], [Style])?
+
+Return a JSON object with:
+- optimizedKeywords: A more vivid, descriptive version of the user's keywords (max 25 words).
+- recommendedTags: 5-10 technical tags that would enhance the output.
+- structureSuggestion: A blueprint of how to structure the final prompt for this specific concept.
+- reasoning: A brief explanation of why these changes were suggested.
+
+RESPONSE FORMAT (JSON ONLY):
 {
-  "enhancedKeywords": "string",
-  "suggestedTags": ["tag1", "tag2"]
+  "optimizedKeywords": "...",
+  "recommendedTags": ["...", "..."],
+  "structureSuggestion": "...",
+  "reasoning": "..."
 }`;
+
+    const contents: any[] = [`User Keywords: "${keywords}"\nCurrent Tags: [${tags.join(', ')}]`];
+    
+    if (image) {
+      contents.push({
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: image.split(',')[1]
+        }
+      });
+      contents.push(`Analyze the provided image for context.`);
+    }
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `User Concept: "${keywords}"`,
+      contents,
       config: {
         systemInstruction,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            enhancedKeywords: { type: Type.STRING },
-            suggestedTags: { type: Type.ARRAY, items: { type: Type.STRING } }
+            optimizedKeywords: { type: Type.STRING },
+            recommendedTags: { type: Type.ARRAY, items: { type: Type.STRING } },
+            structureSuggestion: { type: Type.STRING },
+            reasoning: { type: Type.STRING }
           },
-          required: ["enhancedKeywords", "suggestedTags"]
+          required: ["optimizedKeywords", "recommendedTags", "structureSuggestion", "reasoning"]
         }
       }
     });
@@ -298,7 +325,8 @@ RESPONSE FORMAT (JSON):
     if (!cleanJson) throw new Error("Empty response");
     return JSON.parse(cleanJson);
   } catch (error) {
-    throw new StudioError("Failed to generate suggestions. Proceeding with original keywords.", 'generic');
+    console.error("Optimization failed:", error);
+    throw new StudioError("Smart Optimization service failed. Try again soon.", 'generic');
   }
 };
 
@@ -373,5 +401,38 @@ RESPONSE FORMAT (JSON):
   } catch (error: any) {
     if (error instanceof StudioError) throw error;
     throw new StudioError(error.message || "Style analysis failed.", 'generic');
+  }
+};
+
+export const generateSpeechTTS = async (text: string, tone: string = 'neutral'): Promise<string> => {
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new StudioError("API Key is missing.", 'network');
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+  
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3.1-flash-tts-preview",
+      contents: [{ parts: [{ text: `Say this with a ${tone} tone: ${text}` }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: 'Kore' },
+          },
+        },
+      },
+    });
+
+    const inlineData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+    if (!inlineData || !inlineData.data) {
+      throw new StudioError("No audio returned by the model.");
+    }
+    const mimeType = inlineData.mimeType || 'audio/wav';
+    return `data:${mimeType};base64,${inlineData.data}`;
+  } catch (error: any) {
+    throw new StudioError(error.message || "Failed to generate speech.", 'generic');
   }
 };

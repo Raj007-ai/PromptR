@@ -63,6 +63,13 @@ export interface GeneratedPrompt {
 
 
 
+export interface OptimizationResult {
+  optimizedKeywords: string;
+  recommendedTags: string[];
+  structureSuggestion: string;
+  reasoning: string;
+}
+
 export interface StyleAnalysisResult {
   summary: string;
   keywords: string[];

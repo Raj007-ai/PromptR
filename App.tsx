@@ -1,9 +1,9 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AppView, GenerationLanguage, PromptInput, GeneratedPrompt, AspectRatio, GeneratedImageResult, StyleAnalysisResult } from './types.ts';
+import { AppView, GenerationLanguage, PromptInput, GeneratedPrompt, AspectRatio, GeneratedImageResult, StyleAnalysisResult, OptimizationResult } from './types.ts';
 import { Icons, TAG_SUGGESTIONS, LANGUAGE_EXAMPLES } from './constants.tsx';
-import { generateAIPrompt, enhanceKeywords, suggestEnhancements, generateAIImage, editImageWithAI, analyzeArtisticStyle, StudioError } from './geminiService.ts';
+import { generateAIPrompt, enhanceKeywords, suggestEnhancements, generateAIImage, editImageWithAI, analyzeArtisticStyle, generateSpeechTTS, StudioError } from './geminiService.ts';
 import { Particles } from './components/Particles.tsx';
 import { ShareModal } from './components/ShareModal.tsx';
 import { PromptInterpreter } from './components/PromptInterpreter.tsx';
@@ -79,12 +79,19 @@ interface Toast {
 }
 
 const STYLE_PRESETS = [
-  { id: 'cinematic', name: 'Cinematic', description: 'Dramatic lighting, high contrast, movie-like quality' },
-  { id: 'surreal', name: 'Surrealism', description: 'Dream-like logic, impossible structures, vibrant colors' },
-  { id: 'cyberpunk', name: 'Cyberpunk', description: 'Neon lights, futuristic tech, rainy cityscapes' },
-  { id: 'oil-painting', name: 'Oil Painting', description: 'Rich textures, visible brushstrokes, classical feel' },
-  { id: 'isometric', name: 'Isometric 3D', description: 'Clean geometry, miniature world, digital art style' },
-  { id: 'minimalist', name: 'Minimalist', description: 'Simplicity, high whitespace, focused subjects' },
+  { id: 'cinematic', name: 'Cinematic', description: 'Dramatic lighting, movie-like quality' },
+  { id: 'manga', name: 'Manga', description: 'Hand-drawn Japanese comic style with sharp lines' },
+  { id: 'anime', name: 'Anime', description: 'Vibrant colors, cel-shaded characters' },
+  { id: 'sketch', name: 'Sketch', description: 'Pencil drawing aesthetic with graphite textures' },
+  { id: '3d-model', name: '3D Model', description: 'Detailed digital render with realistic lighting' },
+  { id: 'pixel-art', name: 'Pixel Art', description: 'Retro low-fidelity digital art' },
+  { id: 'oil-painting', name: 'Oil Painting', description: 'Rich textures, visible brushstrokes' },
+  { id: 'watercolor', name: 'Watercolor', description: 'Soft, fluid, and translucent painted aesthetic' },
+  { id: 'realistic', name: 'Realism', description: 'Hyper-detailed, lifelike photographic quality' },
+  { id: 'cyberpunk', name: 'Cyberpunk', description: 'Neon lights, futuristic tech' },
+  { id: 'synthwave', name: 'Synthwave', description: '80s retro-futurism, neon grids' },
+  { id: 'isometric', name: 'Isometric', description: '3D top-down angled perspective' },
+  { id: 'pop-art', name: 'Pop Art', description: 'Bold colors, comic book style' },
 ];
 
 const generateId = () => {
@@ -205,12 +212,88 @@ const CodeHighlighter: React.FC<{ content: string }> = ({ content }) => {
   );
 };
 
+import { generateSpeechTTS } from './geminiService.ts';
+
+const TTSReader: React.FC<{ text: string }> = ({ text }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [tone, setTone] = useState('neutral');
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const TONES = ['neutral', 'smile', 'anger', 'hard', 'soft', 'confused', 'sad', 'excited'];
+
+  const togglePlay = async () => {
+    if (isPlaying) {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    if (!text) return;
+    setLoading(true);
+    try {
+      const dataUri = await generateSpeechTTS(text, tone);
+      setAudioUrl(dataUri);
+      
+      const audio = new Audio(dataUri);
+      audioRef.current = audio;
+      audio.onended = () => setIsPlaying(false);
+      audio.onerror = () => setIsPlaying(false);
+      audio.play();
+      setIsPlaying(true);
+    } catch (e: any) {
+      console.error(e);
+      alert(e.message || "Speech generation failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
+  return (
+    <div className="flex items-center space-x-2 bg-white/5 border border-white/10 rounded-xl p-1 backdrop-blur-md">
+      <select 
+        value={tone}
+        onChange={(e) => setTone(e.target.value)}
+        disabled={loading || isPlaying}
+        className="bg-transparent text-[9px] font-black uppercase tracking-widest text-white/70 outline-none cursor-pointer pl-3 appearance-none hover:text-white transition-colors"
+      >
+        {TONES.map(t => <option key={t} value={t} className="bg-gray-900 text-white">{t}</option>)}
+      </select>
+      <button 
+        onClick={togglePlay}
+        disabled={loading}
+        className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all flex items-center justify-center min-w-[32px] min-h-[32px] shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+        title={isPlaying ? "Stop" : "Read Aloud"}
+      >
+        {loading ? (
+            <div className="w-3 h-3 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+        ) : isPlaying ? (
+            <Icons.Square className="w-3 h-3" />
+        ) : (
+            <Icons.Play className="w-3 h-3 translate-x-px" />
+        )}
+      </button>
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<AppView>(AppView.PROMPT_GENERATOR);
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Architecting Reality...');
   const [enhancing, setEnhancing] = useState(false);
   const [isSuggesting, setIsSuggesting] = useState(false);
+  const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
+  const [showOptimization, setShowOptimization] = useState(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -349,7 +432,7 @@ const App: React.FC = () => {
     }
   };
 
-  const handleGenerateImage = async (numberOfImages: number = 1) => {
+  const handleGenerateImage = async () => {
     if (!imagePrompt.trim()) {
       showNotification("Provide a visual description to generate an image.", "warning");
       playSound('error');
@@ -364,7 +447,7 @@ const App: React.FC = () => {
         aspectRatio,
         style: selectedStyle,
         negativePrompt: negativeImagePrompt,
-        numberOfImages
+        numberOfImages: 1
       });
       setGeneratedImage(result);
       
@@ -401,6 +484,16 @@ const App: React.FC = () => {
   };
 
 
+
+  const applyOptimization = () => {
+    if (!optimizationResult) return;
+    setKeywords(optimizationResult.optimizedKeywords);
+    const newTags = [...new Set([...tags, ...optimizationResult.recommendedTags])].slice(0, 15);
+    setTags(newTags);
+    setShowOptimization(false);
+    showNotification("Smart Optimization applied!", "success");
+    playSound('success');
+  };
 
   const handleAnalyzeStyle = async () => {
     if (!styleAnalysisInput.description && !styleAnalysisInput.image) {
@@ -534,19 +627,18 @@ const App: React.FC = () => {
                     <label className="text-[10px] font-black text-emerald-400/80 uppercase tracking-widest">Narrative Keywords</label>
                     <div className="flex items-center space-x-2">
                       <button onClick={async () => {
-                        if (!keywords) return showNotification("Keywords required for auto-suggestion.", "warning");
+                        if (!keywords) return showNotification("Provide initial keywords to optimize.", "warning");
                         setIsSuggesting(true);
                         try {
-                          const { enhancedKeywords, suggestedTags } = await suggestEnhancements(keywords);
-                          setKeywords(enhancedKeywords);
-                          const newTags = [...new Set([...tags, ...suggestedTags])].slice(0, 15);
-                          setTags(newTags);
-                          showNotification("Keywords and tags auto-enhanced!", "success");
+                          const result = await suggestEnhancements(keywords, tags, image || undefined);
+                          setOptimizationResult(result);
+                          setShowOptimization(true);
+                          showNotification("Smart Analysis Complete", "success");
                         } catch (err: any) {
                           showNotification(err.message, "error");
                         } finally { setIsSuggesting(false); }
                       }} disabled={isSuggesting || !keywords} className="text-[9px] font-black px-4 py-2 rounded-full border border-purple-400/20 text-purple-400 uppercase tracking-widest hover:bg-purple-400/10 transition-all disabled:opacity-30 backdrop-blur-md">
-                        {isSuggesting ? 'Suggesting...' : '✨ Auto-Suggest'}
+                        {isSuggesting ? 'Analyzing...' : '⚡ Smart Optimize'}
                       </button>
                       <button onClick={async () => {
                         if (!keywords) return showNotification("Keywords required for refinement.", "warning");
@@ -572,6 +664,64 @@ const App: React.FC = () => {
                     }}
                   />
                 </div>
+
+                <AnimatePresence>
+                  {showOptimization && optimizationResult && (
+                    <motion.div 
+                      key="optimization-panel"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-6 rounded-3xl bg-purple-500/10 border border-purple-500/30 space-y-5 backdrop-blur-md shadow-[0_0_40px_rgba(168,85,247,0.1)]">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-2">
+                              <Icons.Sparkles className="w-4 h-4 text-purple-400" />
+                              <h4 className="text-[10px] font-black uppercase tracking-widest text-purple-400">Smart Optimization Insight</h4>
+                            </div>
+                            <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-purple-400/40">Architect's Intelligence</p>
+                          </div>
+                          <button onClick={() => setShowOptimization(false)} className="text-purple-400/50 hover:text-purple-400 transition-colors">
+                            <Icons.X className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <label className="text-[8px] font-black uppercase tracking-widest text-white/30">Reasoning</label>
+                            <p className="text-xs text-[var(--text-main)] italic leading-relaxed opacity-70 font-medium">
+                              "{optimizationResult.reasoning}"
+                            </p>
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-[8px] font-black uppercase tracking-widest text-white/30">Suggested DNA Structure</label>
+                            <div className="p-4 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
+                              <p className="text-[10px] font-mono text-purple-300 leading-relaxed font-bold">
+                                {optimizationResult.structureSuggestion}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center pt-2 gap-4">
+                          <div className="flex-1 space-y-2">
+                            <label className="text-[8px] font-black uppercase tracking-widest text-white/30">Target Keywords</label>
+                            <p className="text-[10px] text-white/60 font-medium truncate">{optimizationResult.optimizedKeywords}</p>
+                          </div>
+                          <button 
+                            onClick={applyOptimization}
+                            className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-2xl text-[9px] font-black uppercase tracking-[0.3em] hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-purple-500/20 group"
+                          >
+                            <Icons.Check className="w-4 h-4 transition-transform group-hover:scale-110" />
+                            <span>Apply Optimization</span>
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-blue-400/80 uppercase tracking-widest px-2">Technical DNA Tags</label>
@@ -788,13 +938,14 @@ const App: React.FC = () => {
                               }}
                             />
                             <PromptInterpreter prompt={generatedResult.refinedPrompt} />
-                            <div className="flex justify-end">
+                            <div className="flex justify-between items-center">
+                              <TTSReader text={generatedResult.refinedPrompt} />
                               <button 
                                 onClick={() => handleGenerate(true)}
                                 disabled={loading}
                                 className="px-5 py-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-[9px] font-black uppercase tracking-widest text-emerald-400 hover:bg-emerald-500/10 transition-all flex items-center space-x-2 backdrop-blur-md"
                               >
-                                <Icons.Zap />
+                                <Icons.Zap className="w-3 h-3" />
                                 <span>Generate More</span>
                               </button>
                             </div>
@@ -823,7 +974,12 @@ const App: React.FC = () => {
                         )}
                         {activeOutputTab === 'analysis' && (
                           <div className="space-y-6">
-                            <p className="text-sm text-[var(--text-main)] leading-relaxed opacity-80 font-medium">{generatedResult.logic}</p>
+                            <div className="flex flex-col space-y-3">
+                              <p className="text-sm text-[var(--text-main)] leading-relaxed opacity-80 font-medium">{generatedResult.logic}</p>
+                              <div>
+                                <TTSReader text={generatedResult.logic || "No analysis generated."} />
+                              </div>
+                            </div>
                             {generatedResult.styleAnalysis && typeof generatedResult.styleAnalysis !== 'string' && (
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="p-5 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 backdrop-blur-md">
@@ -975,19 +1131,22 @@ const App: React.FC = () => {
               </div>
 
               <div className="space-y-6">
-                <label className="text-[10px] font-black text-cyan-400/80 uppercase tracking-widest px-2">Artistic Direction</label>
-                <div className="flex overflow-x-auto gap-3 pb-4 snap-x snap-mandatory custom-scrollbar">
+                <div className="flex justify-between items-center px-2">
+                  <label className="text-[10px] font-black text-cyan-400/80 uppercase tracking-widest">Style Templates</label>
+                  <span className="text-[8px] font-bold text-white/30 uppercase tracking-widest">Select architectural DNA</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {STYLE_PRESETS.map(style => (
                     <button 
                       key={style.id} 
                       onClick={() => { setSelectedStyle(style.id === selectedStyle ? '' : style.id); playSound('click'); }}
-                      className={`min-w-[160px] snap-start p-4 rounded-2xl border transition-all text-left flex flex-col space-y-1 relative overflow-hidden shrink-0 ${selectedStyle === style.id ? 'border-cyan-500/40' : 'bg-white/[0.03] border-white/5 opacity-40 hover:opacity-100'}`}
+                      className={`p-4 rounded-2xl border transition-all text-left flex flex-col space-y-1 relative overflow-hidden ${selectedStyle === style.id ? 'border-cyan-500/40 bg-cyan-500/5' : 'bg-white/[0.03] border-white/5 opacity-40 hover:opacity-100 hover:bg-white/[0.05]'}`}
                     >
                       {selectedStyle === style.id && (
                         <motion.div layoutId="style-bg" className="absolute inset-0 bg-cyan-500/10 -z-10" />
                       )}
                       <span className={`text-[10px] font-black uppercase tracking-tight ${selectedStyle === style.id ? 'text-cyan-400' : 'text-white'}`}>{style.name}</span>
-                      <span className="text-[8px] opacity-60 leading-tight">{style.description}</span>
+                      <span className="text-[8px] opacity-40 leading-tight line-clamp-1">{style.description}</span>
                     </button>
                   ))}
                 </div>
@@ -1004,11 +1163,11 @@ const App: React.FC = () => {
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex">
                 <button 
-                  onClick={() => handleGenerateImage(1)} 
+                  onClick={() => handleGenerateImage()} 
                   disabled={loading} 
-                  className="flex-[2] py-6 bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-600 text-white font-black uppercase tracking-[0.4em] text-[10px] rounded-3xl shadow-2xl hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-20 flex items-center justify-center space-x-3 group relative overflow-hidden"
+                  className="w-full py-6 bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-600 text-white font-black uppercase tracking-[0.4em] text-[10px] rounded-3xl shadow-2xl hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-20 flex items-center justify-center space-x-3 group relative overflow-hidden"
                 >
                   {loading && (
                     <motion.div 
@@ -1018,13 +1177,6 @@ const App: React.FC = () => {
                     />
                   )}
                   {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin relative z-10" /> : <span className="relative z-10">Materialize Visual Blueprint</span>}
-                </button>
-                <button 
-                  onClick={() => handleGenerateImage(4)} 
-                  disabled={loading} 
-                  className="flex-1 py-6 bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-3xl shadow-2xl hover:bg-white/10 active:scale-[0.98] transition-all disabled:opacity-20 flex items-center justify-center space-x-3 group relative overflow-hidden"
-                >
-                  {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin relative z-10" /> : <span className="relative z-10">4 Variations</span>}
                 </button>
               </div>
             </div>
@@ -1082,32 +1234,15 @@ const App: React.FC = () => {
                         className="w-full h-full flex flex-col items-center"
                       >
                         {activeImageOutputTab === 'materialized' && (
-                          <div className={`relative group w-full flex-1 ${generatedImage.urls && generatedImage.urls.length > 1 ? 'grid grid-cols-2 gap-4' : 'flex items-center justify-center'}`}>
-                            {generatedImage.urls && generatedImage.urls.length > 1 ? (
-                              generatedImage.urls.map((url, idx) => (
-                                <div key={idx} className="relative group/item w-full flex items-center justify-center">
-                                  <img 
-                                    src={url} 
-                                    className={`rounded-2xl shadow-xl w-full object-cover transition-all duration-700 ${loading ? 'opacity-50 blur-xl scale-95' : 'opacity-100 blur-0 scale-100'}`} 
-                                    alt={`Generated AI Blueprint ${idx + 1}`} 
-                                  />
-                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-opacity rounded-2xl flex items-center justify-center space-x-4 backdrop-blur-sm">
-                                    <button onClick={() => downloadImage(url, imagePrompt)} className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <>
-                                <img 
-                                  src={generatedImage.url} 
-                                  className={`rounded-3xl shadow-2xl max-h-[450px] object-contain transition-all duration-700 ${loading ? 'opacity-50 blur-xl scale-95' : 'opacity-100 blur-0 scale-100'}`} 
-                                  alt="Generated AI Blueprint" 
-                                />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center space-x-4 backdrop-blur-sm">
-                                  <button onClick={() => downloadImage(generatedImage.url, imagePrompt)} className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
-                                </div>
-                              </>
-                            )}
+                          <div className="relative group w-full flex-1 flex items-center justify-center">
+                            <img 
+                              src={generatedImage.url} 
+                              className={`rounded-3xl shadow-2xl max-h-[450px] object-contain transition-all duration-700 ${loading ? 'opacity-50 blur-xl scale-95' : 'opacity-100 blur-0 scale-100'}`} 
+                              alt="Generated AI Blueprint" 
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center space-x-4 backdrop-blur-sm">
+                              <button onClick={() => downloadImage(generatedImage.url, imagePrompt)} className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
+                            </div>
                           </div>
                         )}
 
@@ -1172,7 +1307,7 @@ const App: React.FC = () => {
 
                   <div className="w-full space-y-4 pt-4 border-t border-white/5">
                     <button 
-                      onClick={handleGenerateImage}
+                      onClick={() => handleGenerateImage()}
                       disabled={loading}
                       className="w-full py-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-[9px] font-black uppercase tracking-widest text-emerald-400 flex items-center justify-center space-x-2 hover:bg-emerald-500/20 transition-all disabled:opacity-20 backdrop-blur-md"
                     >
@@ -1181,19 +1316,11 @@ const App: React.FC = () => {
                     </button>
                     <div className="flex gap-4">
                       <button 
-                        onClick={() => {
-                          if (generatedImage.urls && generatedImage.urls.length > 1) {
-                            generatedImage.urls.forEach((url, idx) => {
-                              setTimeout(() => downloadImage(url, `${imagePrompt}_${idx + 1}`), idx * 500);
-                            });
-                          } else {
-                            downloadImage(generatedImage.url, imagePrompt);
-                          }
-                        }} 
+                        onClick={() => downloadImage(generatedImage.url, imagePrompt)} 
                         className="flex-1 py-4 glass-panel rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center space-x-2 text-[var(--text-main)] hover:bg-white/5 transition-all"
                       >
                         <Icons.Image />
-                        <span>{generatedImage.urls && generatedImage.urls.length > 1 ? 'Download All' : 'Download 4K'}</span>
+                        <span>Download 4K</span>
                       </button>
                       <button 
                         onClick={() => { setSharePromptText(generatedImage.revisedPrompt); setSharePromptTitle(imagePrompt.slice(0, 30) || "Visual Synthesis"); setShareModalOpen(true); }} 
@@ -1344,7 +1471,10 @@ const App: React.FC = () => {
                 {styleAnalysisResult ? (
                   <div className="space-y-10 animate-in fade-in slide-in-from-right-4">
                     <div className="space-y-4">
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Style Synthesis</h4>
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Style Synthesis</h4>
+                        <TTSReader text={styleAnalysisResult.summary} />
+                      </div>
                       <p className="text-sm font-medium leading-relaxed opacity-80 italic">"{styleAnalysisResult.summary}"</p>
                     </div>
 
