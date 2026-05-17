@@ -1,0 +1,4 @@
+## 2025-05-17 - Prevent XSS in react-simple-code-editor
+**Vulnerability:** The application used `react-simple-code-editor` with the property `highlight={code => code}` which returns raw unescaped strings directly to the DOM via the editor's syntax highlighting mechanism, causing an XSS vulnerability when user input includes script tags.
+**Learning:** Returning unescaped `code` strings directly in the `highlight` function leads to XSS. Using standard DOM sanitizers like DOMPurify breaks the editor by stripping tags and rendering code invisible.
+**Prevention:** Sanitize user input specifically for code editors by implementing an `escapeHtml` function to safely encode HTML entities (replacing `<`, `>`, `&`, `"`, and `'`) instead of stripping them, effectively preventing script execution while maintaining intended UI rendering.
