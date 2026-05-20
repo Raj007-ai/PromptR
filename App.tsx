@@ -45,20 +45,22 @@ const PromptEditor: React.FC<{
           />
         </div>
         {value && (
-          <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity z-10">
             {onCopy && (
               <button 
                 onClick={onCopy}
-                className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all"
+                className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none"
                 title="Copy to Clipboard"
+                aria-label="Copy to Clipboard"
               >
                 <Icons.Copy />
               </button>
             )}
             <button 
               onClick={onClear}
-              className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all"
+              className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none"
               title="Clear Keywords"
+              aria-label="Clear Keywords"
             >
               <Icons.X className="w-3 h-3" />
             </button>
@@ -211,8 +213,6 @@ const CodeHighlighter: React.FC<{ content: string }> = ({ content }) => {
     </pre>
   );
 };
-
-import { generateSpeechTTS } from './geminiService.ts';
 
 const TTSReader: React.FC<{ text: string }> = ({ text }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -1240,8 +1240,8 @@ const App: React.FC = () => {
                               className={`rounded-3xl shadow-2xl max-h-[450px] object-contain transition-all duration-700 ${loading ? 'opacity-50 blur-xl scale-95' : 'opacity-100 blur-0 scale-100'}`} 
                               alt="Generated AI Blueprint" 
                             />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center space-x-4 backdrop-blur-sm">
-                              <button onClick={() => downloadImage(generatedImage.url, imagePrompt)} className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all"><Icons.Image /></button>
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity rounded-3xl flex items-center justify-center space-x-4 backdrop-blur-sm">
+                              <button onClick={() => downloadImage(generatedImage.url, imagePrompt)} aria-label="Download Generated Image" className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none"><Icons.Image /></button>
                             </div>
                           </div>
                         )}
@@ -1275,8 +1275,9 @@ const App: React.FC = () => {
                               {refinementInstruction && (
                                 <button 
                                   onClick={() => { setRefinementInstruction(''); playSound('click'); }}
-                                  className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100"
+                                  className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none"
                                   title="Clear Instructions"
+                                  aria-label="Clear Instructions"
                                 >
                                   <Icons.X className="w-3 h-3" />
                                 </button>
@@ -1412,7 +1413,8 @@ const App: React.FC = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                       <button 
                         onClick={(e) => { e.stopPropagation(); setStyleAnalysisInput(prev => ({ ...prev, image: null })); }} 
-                        className="absolute top-4 right-4 p-3 bg-red-500/90 rounded-full hover:bg-red-500 hover:scale-110 transition-all z-10 text-white opacity-0 group-hover:opacity-100 translate-y-[-10px] group-hover:translate-y-0 shadow-lg"
+                        className="absolute top-4 right-4 p-3 bg-red-500/90 rounded-full hover:bg-red-500 hover:scale-110 transition-all z-10 text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 translate-y-[-10px] group-hover:translate-y-0 focus-visible:translate-y-0 shadow-lg focus-visible:ring-2 focus-visible:ring-white outline-none"
+                        aria-label="Remove Style Image"
                       >
                         <Icons.X className="w-4 h-4" />
                       </button>
@@ -1431,8 +1433,9 @@ const App: React.FC = () => {
                       {styleAnalysisInput.description && (
                         <button 
                           onClick={() => { setStyleAnalysisInput(prev => ({ ...prev, description: '' })); playSound('click'); }}
-                          className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100"
+                          className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none"
                           title="Clear Description"
+                          aria-label="Clear Description"
                         >
                           <Icons.X className="w-3 h-3" />
                         </button>
