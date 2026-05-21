@@ -1,0 +1,4 @@
+## 2026-05-21 - Prevent XSS in react-simple-code-editor
+**Vulnerability:** The `react-simple-code-editor` component in `App.tsx` used `highlight={code => code}` which renders user input directly into the DOM as HTML, leading to Stored/Reflected XSS.
+**Learning:** By default, `react-simple-code-editor` expects the `highlight` function to return HTML for syntax highlighting. If no highlighting is used and it just returns the raw code, it acts like a dangerouslySetInnerHTML, executing any scripts provided in the text.
+**Prevention:** Never pass unfiltered user input directly to the `highlight` function. If syntax highlighting is not used, sanitize the input by replacing reserved characters (`<`, `>`, `&`, `"`, `'`) with their HTML entity equivalents before returning it. DO NOT use DOMPurify as it strips HTML tags completely, making code invisible to the user.
