@@ -1,0 +1,4 @@
+## 2024-05-24 - Cross-Site Scripting (XSS) in react-simple-code-editor highlight prop
+**Vulnerability:** XSS vulnerability found in `react-simple-code-editor` component when the `highlight` prop is set to return raw user input (`highlight={code => code}`).
+**Learning:** Returning unescaped code string allows arbitrary HTML to be rendered in the DOM, executing inline scripts. Using standard sanitizers like DOMPurify in this context is destructive because they strip out HTML tags entirely, rendering typed code invisible to users and breaking the editor's functionality.
+**Prevention:** Rather than aggressive sanitization, sanitize input by using an HTML escape function to explicitly replace reserved characters (`<`, `>`, `&`, `"`, `'`) with their corresponding HTML entities. This neutralizes the XSS threat while preserving the literal text content within the editor.
