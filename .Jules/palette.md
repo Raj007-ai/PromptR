@@ -1,0 +1,3 @@
+## 2026-05-24 - Keyboard Accessibility for Hover-Revealed Icon Buttons
+**Learning:** Icon-only action buttons that rely exclusively on `opacity-0 group-hover:opacity-100` are completely inaccessible to keyboard users because they cannot be seen when tabbing through the interface. This causes screen reader and keyboard-only users to miss functionality like "Copy" and "Clear" actions.
+**Action:** To ensure accessibility, always combine `group-hover:opacity-100` with `focus-within:opacity-100` on the container or `focus-visible:opacity-100` on the button itself. Additionally, always include `aria-label` attributes and standard focus rings (`focus-visible:ring-2 outline-none`) on icon-only interactive elements.
