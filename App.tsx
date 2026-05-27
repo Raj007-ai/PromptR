@@ -212,7 +212,6 @@ const CodeHighlighter: React.FC<{ content: string }> = ({ content }) => {
   );
 };
 
-import { generateSpeechTTS } from './geminiService.ts';
 
 const TTSReader: React.FC<{ text: string }> = ({ text }) => {
   const [isPlaying, setIsPlaying] = useState(false);
