@@ -102,11 +102,28 @@ export const generateTTS = async (text: string): Promise<ArrayBuffer> => {
   const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
   if (!base64Audio) throw new Error("No audio data received");
   
-  return decode(base64Audio).buffer;
+  return (await decode(base64Audio)).buffer;
 };
 
 // Standard base64 decoding implementation for PCM data processing
-function decode(base64: string) {
+async function decode(base64: string) {
+  // 1. Fast path for Node.js / Bun environments
+  if (typeof Buffer !== 'undefined') {
+    const buf = Buffer.from(base64, 'base64');
+    return new Uint8Array(buf.buffer, buf.byteOffset, buf.length);
+  }
+
+  // 2. Native browser decoding via fetch and data URLs (usually faster than JS loops)
+  if (typeof fetch !== 'undefined') {
+    try {
+      const response = await fetch(`data:application/octet-stream;base64,${base64}`);
+      return new Uint8Array(await response.arrayBuffer());
+    } catch (e) {
+      // Fallback on error
+    }
+  }
+
+  // 3. Fallback to JS loop for older environments
   const binaryString = atob(base64);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
