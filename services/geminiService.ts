@@ -18,7 +18,6 @@ export const generateAIPrompt = async (input: PromptInput): Promise<GeneratedPro
     config.tools = [{ googleSearch: {} }];
   }
 
-  // Fix: Removed reference to 'input.tags' as it does not exist on the PromptInput type (Line 25 fix)
   const parts: any[] = [
     { text: `You are a world-class AI prompt engineer. Create a detailed, effective prompt based on the following:
       Keywords: ${input.keywords}
