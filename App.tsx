@@ -212,7 +212,6 @@ const CodeHighlighter: React.FC<{ content: string }> = ({ content }) => {
   );
 };
 
-import { generateSpeechTTS } from './geminiService.ts';
 
 const TTSReader: React.FC<{ text: string }> = ({ text }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -343,7 +342,7 @@ const App: React.FC = () => {
   const [negativeImagePrompt, setNegativeImagePrompt] = useState('');
   const [generatedImage, setGeneratedImage] = useState<GeneratedImageResult | null>(null);
   const [refinementInstruction, setRefinementInstruction] = useState('');
-  const [auraRefineInstruction, setAuraRefineInstruction] = useState('');
+  const [, setAuraRefineInstruction] = useState('');
   const [auraImageRefineInstruction, setAuraImageRefineInstruction] = useState('');
 
 
