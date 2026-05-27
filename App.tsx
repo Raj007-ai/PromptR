@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AppView, GenerationLanguage, PromptInput, GeneratedPrompt, AspectRatio, GeneratedImageResult, StyleAnalysisResult, OptimizationResult } from './types.ts';
 import { Icons, TAG_SUGGESTIONS, LANGUAGE_EXAMPLES } from './constants.tsx';
-import { generateAIPrompt, enhanceKeywords, suggestEnhancements, generateAIImage, editImageWithAI, analyzeArtisticStyle, generateSpeechTTS, StudioError } from './geminiService.ts';
+import { generateAIPrompt, enhanceKeywords, suggestEnhancements, generateAIImage, editImageWithAI, analyzeArtisticStyle, StudioError } from './geminiService.ts';
 import { Particles } from './components/Particles.tsx';
 import { ShareModal } from './components/ShareModal.tsx';
 import { PromptInterpreter } from './components/PromptInterpreter.tsx';
@@ -102,6 +102,7 @@ const generateId = () => {
 };
 
 let audioCtx: AudioContext | null = null;
+let cachedNoiseBuffer: AudioBuffer | null = null;
 const getAudioCtx = () => {
   if (!audioCtx) {
     try {
@@ -151,13 +152,15 @@ const playSound = (type: 'click' | 'success' | 'ignite' | 'error') => {
     createOscillator(55, 'triangle', now, 1.2, 0.1, 220);
     
     // Add a noise-like texture for "ignition"
-    const bufferSize = ctx.sampleRate * 0.5;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    if (!cachedNoiseBuffer || cachedNoiseBuffer.sampleRate !== ctx.sampleRate) {
+      const bufferSize = ctx.sampleRate * 0.5;
+      cachedNoiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = cachedNoiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    }
     
     const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
+    noise.buffer = cachedNoiseBuffer;
     const noiseGain = ctx.createGain();
     const filter = ctx.createBiquadFilter();
     
