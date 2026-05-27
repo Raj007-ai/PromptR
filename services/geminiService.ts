@@ -59,14 +59,19 @@ export const generateAIPrompt = async (input: PromptInput): Promise<GeneratedPro
 
 export const editImageWithAI = async (imageB64: string, instruction: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+  const match = imageB64.match(/^data:(image\/[a-zA-Z+]+);base64,/);
+  const mimeType = match ? match[1] : 'image/jpeg';
+  const data = imageB64.includes(',') ? imageB64.split(',')[1] : imageB64;
+
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash-image',
     contents: {
       parts: [
         {
           inlineData: {
-            data: imageB64.split(',')[1],
-            mimeType: 'image/jpeg'
+            data,
+            mimeType
           }
         },
         { text: instruction }
