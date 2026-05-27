@@ -50,7 +50,7 @@ export const generateAIPrompt = async (input: PromptInput): Promise<GeneratedPro
   const content = response.text || "Error generating prompt.";
   const references = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
 
-  // Fix: satisfies GeneratedPrompt interface requirements
+
   return {
     refinedPrompt: content,
     references: references.map((chunk: any) => chunk)
