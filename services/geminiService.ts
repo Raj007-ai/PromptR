@@ -107,6 +107,11 @@ export const generateTTS = async (text: string): Promise<ArrayBuffer> => {
 
 // Standard base64 decoding implementation for PCM data processing
 function decode(base64: string) {
+  // Fast path for Node/Bun backend environments
+  if (typeof Buffer !== "undefined") {
+    return Buffer.from(base64, "base64");
+  }
+
   const binaryString = atob(base64);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
