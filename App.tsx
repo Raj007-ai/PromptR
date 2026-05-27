@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AppView, GenerationLanguage, PromptInput, GeneratedPrompt, AspectRatio, GeneratedImageResult, StyleAnalysisResult, OptimizationResult } from './types.ts';
-import { Icons, TAG_SUGGESTIONS, LANGUAGE_EXAMPLES } from './constants.tsx';
+import { Icons, TAG_SUGGESTIONS } from './constants.tsx';
 import { generateAIPrompt, enhanceKeywords, suggestEnhancements, generateAIImage, editImageWithAI, analyzeArtisticStyle, generateSpeechTTS, StudioError } from './geminiService.ts';
 import { Particles } from './components/Particles.tsx';
 import { ShareModal } from './components/ShareModal.tsx';
@@ -212,7 +212,6 @@ const CodeHighlighter: React.FC<{ content: string }> = ({ content }) => {
   );
 };
 
-import { generateSpeechTTS } from './geminiService.ts';
 
 const TTSReader: React.FC<{ text: string }> = ({ text }) => {
   const [isPlaying, setIsPlaying] = useState(false);
