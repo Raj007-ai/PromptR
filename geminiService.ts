@@ -10,12 +10,7 @@ export class StudioError extends Error {
 }
 
 export const generateAIImage = async (input: ImageGenerationInput): Promise<GeneratedImageResult> => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new StudioError("API Key is missing.", 'network');
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: 'dummy-key', httpOptions: { baseUrl: window.location.origin + '/api/gemini' } });
   const fullPrompt = input.style 
     ? `Style: ${input.style}. Subject: ${input.prompt}. Constraints: ${input.negativePrompt || 'None'}` 
     : input.prompt;
@@ -69,12 +64,7 @@ export const generateAIImage = async (input: ImageGenerationInput): Promise<Gene
 };
 
 export const editImageWithAI = async (imageB64: string, instruction: string, aspectRatio: AspectRatio): Promise<GeneratedImageResult> => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new StudioError("API Key is missing.", 'network');
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: 'dummy-key', httpOptions: { baseUrl: window.location.origin + '/api/gemini' } });
   
   try {
     const response = await ai.models.generateContent({
@@ -127,12 +117,7 @@ export const editImageWithAI = async (imageB64: string, instruction: string, asp
 };
 
 export const generateAIPrompt = async (input: PromptInput, isVariation: boolean = false): Promise<GeneratedPrompt> => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new StudioError("API Key is missing. Please check your environment.", 'network');
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: 'dummy-key', httpOptions: { baseUrl: window.location.origin + '/api/gemini' } });
   const modelName = input.useThinking ? 'gemini-3-pro-preview' : 'gemini-3-flash-preview';
   
   const systemInstruction = `You are PromptR Architect, the world's premier AI prompt engineering authority. 
@@ -246,8 +231,7 @@ The output must be optimized for the ${input.language} language.`;
 
 export const enhanceKeywords = async (keywords: string, isVisual: boolean = false): Promise<string> => {
   try {
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey: 'dummy-key', httpOptions: { baseUrl: window.location.origin + '/api/gemini' } });
     
     const instruction = isVisual 
       ? `Transform the following user input into a highly detailed, professional-grade image prompt for Midjourney/DALL-E. Use descriptive language for lighting, texture, and artistic style. If the user included specific instructions on how to refine it (e.g., "make it cyberpunk", "add cinematic lighting"), follow them. User Input: "${keywords}". Output ONLY the refined prompt text.`
@@ -265,8 +249,7 @@ export const enhanceKeywords = async (keywords: string, isVisual: boolean = fals
 
 export const suggestEnhancements = async (keywords: string, tags: string[] = [], image?: string): Promise<OptimizationResult> => {
   try {
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey: 'dummy-key', httpOptions: { baseUrl: window.location.origin + '/api/gemini' } });
     
     const systemInstruction = `You are an AI Prompt Optimizer. 
 Your goal is to take a set of keywords, tags, and optionally an image, and suggest ways to optimize the prompt for maximum impact.
@@ -331,12 +314,7 @@ RESPONSE FORMAT (JSON ONLY):
 };
 
 export const analyzeArtisticStyle = async (input: { image?: string, description?: string }): Promise<StyleAnalysisResult> => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new StudioError("API Key is missing.", 'network');
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: 'dummy-key', httpOptions: { baseUrl: window.location.origin + '/api/gemini' } });
   const parts: any[] = [];
 
   if (input.image) {
@@ -405,12 +383,7 @@ RESPONSE FORMAT (JSON):
 };
 
 export const generateSpeechTTS = async (text: string, tone: string = 'neutral'): Promise<string> => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new StudioError("API Key is missing.", 'network');
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: 'dummy-key', httpOptions: { baseUrl: window.location.origin + '/api/gemini' } });
   
   try {
     const response = await ai.models.generateContent({
