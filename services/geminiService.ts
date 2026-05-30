@@ -5,7 +5,7 @@ import { GenerationLanguage, PromptInput, GeneratedPrompt } from "../types";
 
 export const generateAIPrompt = async (input: PromptInput): Promise<GeneratedPrompt> => {
   // Use API key directly from environment variable
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: 'dummy-key', httpOptions: { baseUrl: window.location.origin + '/api/gemini' } });
   
   const modelName = input.useThinking ? 'gemini-3-pro-preview' : 'gemini-3-flash-preview';
   const config: any = {};
@@ -58,7 +58,7 @@ export const generateAIPrompt = async (input: PromptInput): Promise<GeneratedPro
 };
 
 export const editImageWithAI = async (imageB64: string, instruction: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: 'dummy-key', httpOptions: { baseUrl: window.location.origin + '/api/gemini' } });
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash-image',
     contents: {
@@ -84,7 +84,7 @@ export const editImageWithAI = async (imageB64: string, instruction: string): Pr
 };
 
 export const generateTTS = async (text: string): Promise<ArrayBuffer> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: 'dummy-key', httpOptions: { baseUrl: window.location.origin + '/api/gemini' } });
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash-preview-tts",
     contents: [{ parts: [{ text }] }],
