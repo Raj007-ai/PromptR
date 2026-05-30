@@ -1,0 +1,3 @@
+## 2024-05-30 - Keyboard Accessibility for Hover-Revealed Elements
+**Learning:** Found a recurring accessibility issue where interactive elements (buttons) are hidden visually using `opacity-0 group-hover:opacity-100`. This completely breaks keyboard navigation for screen reader and keyboard-only users, as the focused element remains invisible or lacks a focus indicator.
+**Action:** When hiding interactive elements behind hover classes like `group-hover:opacity-100`, always pair them with `focus-within:opacity-100` on the parent container, and add `focus-visible:opacity-100 focus-visible:ring-2` (plus `outline-none`) to the interactive element itself to ensure proper keyboard accessibility and clear focus rings.
